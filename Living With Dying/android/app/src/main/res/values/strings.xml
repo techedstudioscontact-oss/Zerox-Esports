@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zerox eSports</string>
+    <string name="title_activity_main">Zerox eSports</string>
+    <string name="package_name">com.zerox.esports</string>
+    <string name="custom_url_scheme">com.zerox.esports</string>
+</resources>

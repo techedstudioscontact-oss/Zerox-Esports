@@ -1,0 +1,6 @@
+pages/ManagerDashboard.tsx(3,16): error TS2305: Module '"../types"' has no exported member 'AnimeContent'.
+pages/MasterAdminDashboard.tsx(1021,109): error TS2339: Property 'paidUser' does not exist on type 'User'.
+services/diagnosticsService.ts(3,16): error TS2305: Module '"../types"' has no exported member 'AnimeContent'.
+services/uropayService.ts(1,20): error TS2305: Module '"../constants"' has no exported member 'UROPAY_API_URL'.
+services/uropayService.ts(1,36): error TS2305: Module '"../constants"' has no exported member 'UROPAY_KEY_ID'.
+services/uropayService.ts(1,51): error TS2305: Module '"../constants"' has no exported member 'UROPAY_SECRET_KEY'.
