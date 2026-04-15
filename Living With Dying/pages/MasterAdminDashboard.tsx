@@ -91,9 +91,11 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     const [mainAppUrl, setMainAppUrl] = useState(systemSettings?.mainAppUrl || "");
     const [antiCheatVersion, setAntiCheatVersion] = useState(systemSettings?.antiCheatVersion || "");
     const [antiCheatUrl, setAntiCheatUrl] = useState(systemSettings?.antiCheatUrl || "");
+    const [bgVideoUrl, setBgVideoUrl] = useState(systemSettings?.bgVideoUrl || "");
+    const [bgImageUrl, setBgImageUrl] = useState(systemSettings?.bgImageUrl || "");
     const [cloudinaryCloudName, setCloudinaryCloudName] = useState("");
     const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState("");
-    const [uploadingApk, setUploadingApk] = useState<'main' | 'anticheat' | null>(null);
+    const [uploadingFile, setUploadingFile] = useState<'main' | 'anticheat' | 'bgVideo' | 'bgImage' | null>(null);
 
     const [saving, setSaving] = useState(false);
 
@@ -162,6 +164,8 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             setMainAppUrl(systemSettings.mainAppUrl || "");
             setAntiCheatVersion(systemSettings.antiCheatVersion || "");
             setAntiCheatUrl(systemSettings.antiCheatUrl || "");
+            setBgVideoUrl(systemSettings.bgVideoUrl || "");
+            setBgImageUrl(systemSettings.bgImageUrl || "");
         }
     }, [systemSettings]);
 
@@ -231,7 +235,9 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                 mainAppVersion: mainAppVersion,
                 mainAppUrl: mainAppUrl,
                 antiCheatVersion: antiCheatVersion,
-                antiCheatUrl: antiCheatUrl
+                antiCheatUrl: antiCheatUrl,
+                bgVideoUrl: bgVideoUrl,
+                bgImageUrl: bgImageUrl
             });
             alert("System configuration updated successfully.");
         } catch (error) {
@@ -242,9 +248,21 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         }
     };
 
-    const handleApkUpload = async (file: File, type: 'main' | 'anticheat') => {
-        if (!file.name.endsWith('.apk')) {
+    const handleFileUpload = async (file: File, type: 'main' | 'anticheat' | 'bgVideo' | 'bgImage') => {
+        const isApk = type === 'main' || type === 'anticheat';
+        const isVideo = type === 'bgVideo';
+        const isImage = type === 'bgImage';
+
+        if (isApk && !file.name.endsWith('.apk')) {
             toast.error("Invalid file type. Please select an .apk file.");
+            return;
+        }
+        if (isVideo && !file.type.startsWith('video/')) {
+            toast.error("Invalid file type. Please select a video file (MP4).");
+            return;
+        }
+        if (isImage && !file.type.startsWith('image/')) {
+            toast.error("Invalid file type. Please select an image file.");
             return;
         }
 
@@ -253,14 +271,15 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             return;
         }
 
-        setUploadingApk(type);
+        setUploadingFile(type);
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', cloudinaryUploadPreset);
 
         try {
-            // Unauthenticated raw upload to Cloudinary
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/raw/upload`, {
+            // Unauthenticated raw upload to Cloudinary (use 'upload' for images/videos for better handling)
+            const uploadType = isApk ? 'raw' : 'upload';
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/${uploadType}/upload`, {
                 method: 'POST',
                 body: formData
             });
@@ -276,15 +295,21 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             if (type === 'main') {
                 setMainAppUrl(secureUrl);
                 toast.success("Main App APK Uploaded successfully.");
-            } else {
+            } else if (type === 'anticheat') {
                 setAntiCheatUrl(secureUrl);
                 toast.success("Anti-Cheat APK Uploaded successfully.");
+            } else if (type === 'bgVideo') {
+                setBgVideoUrl(secureUrl);
+                toast.success("Background Video Uploaded successfully.");
+            } else if (type === 'bgImage') {
+                setBgImageUrl(secureUrl);
+                toast.success("Background Image Uploaded successfully.");
             }
         } catch (error: any) {
-            console.error("APK Upload Error:", error);
-            toast.error(error.message || "Failed to upload APK.");
+            console.error("Upload Error:", error);
+            toast.error(error.message || "Failed to upload file.");
         } finally {
-            setUploadingApk(null);
+            setUploadingFile(null);
         }
     };
 
@@ -1123,14 +1148,14 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                                                         className="flex-1 min-w-0 bg-black/50 border border-white/10 rounded p-2 text-white text-xs focus:border-green-400 focus:outline-none"
                                                         placeholder="https://..."
                                                     />
-                                                    <label className={`shrink-0 cursor-pointer flex items-center justify-center px-4 rounded bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-bold ${uploadingApk === 'main' ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        {uploadingApk === 'main' ? <RefreshCw size={14} className="animate-spin" /> : 'UPLOAD'}
+                                                    <label className={`shrink-0 cursor-pointer flex items-center justify-center px-4 rounded bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-bold ${uploadingFile === 'main' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        {uploadingFile === 'main' ? <RefreshCw size={14} className="animate-spin" /> : 'UPLOAD'}
                                                         <input
                                                             type="file"
                                                             accept=".apk"
                                                             className="hidden"
-                                                            onChange={(e) => e.target.files?.[0] && handleApkUpload(e.target.files[0], 'main')}
-                                                            disabled={uploadingApk === 'main'}
+                                                            onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'main')}
+                                                            disabled={uploadingFile === 'main'}
                                                         />
                                                     </label>
                                                 </div>
@@ -1159,14 +1184,70 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                                                         className="flex-1 min-w-0 bg-black/50 border border-white/10 rounded p-2 text-white text-xs focus:border-green-400 focus:outline-none"
                                                         placeholder="https://..."
                                                     />
-                                                    <label className={`shrink-0 cursor-pointer flex items-center justify-center px-4 rounded bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-bold ${uploadingApk === 'anticheat' ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        {uploadingApk === 'anticheat' ? <RefreshCw size={14} className="animate-spin" /> : 'UPLOAD'}
+                                                    <label className={`shrink-0 cursor-pointer flex items-center justify-center px-4 rounded bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-bold ${uploadingFile === 'anticheat' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        {uploadingFile === 'anticheat' ? <RefreshCw size={14} className="animate-spin" /> : 'UPLOAD'}
                                                         <input
                                                             type="file"
                                                             accept=".apk"
                                                             className="hidden"
-                                                            onChange={(e) => e.target.files?.[0] && handleApkUpload(e.target.files[0], 'anticheat')}
-                                                            disabled={uploadingApk === 'anticheat'}
+                                                            onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'anticheat')}
+                                                            disabled={uploadingFile === 'anticheat'}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* App Backgrounds Configuration */}
+                                    <div className="p-6 bg-white/5 rounded-lg border border-white/5 space-y-4">
+                                        <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                                            <Monitor className="text-blue-400" size={20} /> App Backgrounds
+                                        </h4>
+                                        <p className="text-xs text-gray-400">Set the global video and image backgrounds. Video will play if 'Live Animation' is enabled by the user.</p>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[10px] uppercase text-gray-500 mb-1">Global Background Video (MP4)</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="url"
+                                                        value={bgVideoUrl}
+                                                        onChange={(e) => setBgVideoUrl(e.target.value)}
+                                                        className="flex-1 min-w-0 bg-black/50 border border-white/10 rounded p-2 text-white text-xs focus:border-blue-400 focus:outline-none placeholder-gray-600"
+                                                        placeholder="Cloudinary MP4 URL"
+                                                    />
+                                                    <label className={`shrink-0 cursor-pointer flex items-center justify-center px-4 rounded bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-bold ${uploadingFile === 'bgVideo' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        {uploadingFile === 'bgVideo' ? <RefreshCw size={14} className="animate-spin" /> : 'UPLOAD'}
+                                                        <input
+                                                            type="file"
+                                                            accept="video/mp4"
+                                                            className="hidden"
+                                                            onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'bgVideo')}
+                                                            disabled={uploadingFile === 'bgVideo'}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-[10px] uppercase text-gray-500 mb-1">Global Background Image (Static)</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="url"
+                                                        value={bgImageUrl}
+                                                        onChange={(e) => setBgImageUrl(e.target.value)}
+                                                        className="flex-1 min-w-0 bg-black/50 border border-white/10 rounded p-2 text-white text-xs focus:border-blue-400 focus:outline-none placeholder-gray-600"
+                                                        placeholder="Cloudinary Image URL"
+                                                    />
+                                                    <label className={`shrink-0 cursor-pointer flex items-center justify-center px-4 rounded bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-bold ${uploadingFile === 'bgImage' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        {uploadingFile === 'bgImage' ? <RefreshCw size={14} className="animate-spin" /> : 'UPLOAD'}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'bgImage')}
+                                                            disabled={uploadingFile === 'bgImage'}
                                                         />
                                                     </label>
                                                 </div>

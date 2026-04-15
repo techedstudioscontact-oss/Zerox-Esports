@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
-import { BackgroundSlider } from './components/BackgroundSlider';
+import { GlobalBackground } from './components/GlobalBackground';
 import { User, Tournament, Role } from './types';
 import { loginUser, logoutUser, updateUserInDb, subscribeToAuthChanges, getAllUsers, updateUserRoleInDb } from './services/authService';
 import { subscribeToContent, addContentToDb, updateContentInDb, deleteContentFromDb } from './services/contentService';
@@ -13,7 +13,6 @@ import { Toaster, toast } from 'sonner';
 import { initNotifications } from './services/notificationService';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BiometricLock } from './components/BiometricLock';
-import { ParticleBackground } from './components/ParticleBackground';
 import { AppUpdateBlocker } from './components/AppUpdateBlocker';
 // Lazy Load Pages
 const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
@@ -334,9 +333,8 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {/* Animated Background System */}
-          <BackgroundSlider />
-          <ParticleBackground />
+          {/* Dynamic Background System */}
+          <GlobalBackground settings={systemSettings} user={user} />
 
           {/* Global Toaster for Notifications */}
           <Toaster position="top-center" theme="dark" richColors closeButton />

@@ -4,7 +4,7 @@ import { Button } from '../components/Button';
 import { updateUserInDb } from '../services/authService';
 import {
     User as UserIcon, Settings, Mail, Check, ExternalLink, Shield, Crown,
-    X, ShieldCheck, Gamepad2, Phone, Hash, Edit3, Lock, MessageSquarePlus, MessageSquare, Copy, Users
+    X, ShieldCheck, Gamepad2, Phone, Hash, Edit3, Lock, MessageSquarePlus, MessageSquare, Copy, Users, Monitor
 } from 'lucide-react';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -245,6 +245,38 @@ export const Profile: React.FC<ProfileProps> = ({ user, onLogout }) => {
                                     To prevent tournament smurfing and hacking, your game profiles are locked. To edit or add a profile, copy your Account UID from the top of this page and send it to Support via the Request button below.
                                 </p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Display Settings ─────────────────────────────── */}
+                <div className="bg-[#111] border border-white/10 rounded-3xl overflow-hidden">
+                    <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+                        <h2 className="font-bold text-white flex items-center gap-2">
+                            <Monitor size={16} className="text-blue-400" />
+                            Display Settings
+                        </h2>
+                    </div>
+
+                    <div className="p-5">
+                        <div className="flex items-center justify-between p-4 bg-white/3 border border-white/8 rounded-2xl">
+                            <div>
+                                <p className="text-sm font-bold text-gray-200">Live Animation</p>
+                                <p className="text-[11px] text-gray-500">Enable video backgrounds & motion effects</p>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await updateUserInDb({ ...user, showLiveBg: !user.showLiveBg });
+                                        toast.success(`Live animation ${!user.showLiveBg ? 'enabled' : 'disabled'}`);
+                                    } catch (e: any) {
+                                        toast.error("Failed to update preference");
+                                    }
+                                }}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${user.showLiveBg !== false ? 'bg-primary' : 'bg-gray-700'}`}
+                            >
+                                <span className={`${user.showLiveBg !== false ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition-transform`} />
+                            </button>
                         </div>
                     </div>
                 </div>

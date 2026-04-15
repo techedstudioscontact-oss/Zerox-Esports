@@ -93,3 +93,28 @@ video::-webkit-media-controls {
 video::-webkit-media-controls-enclosure {
   display: none !important;
 }
+
+/* Sakura Petals Animation */
+.sakura-container {
+    perspective: 1000px;
+}
+
+.sakura-petal {
+    position: absolute;
+    top: -20px;
+    background: #ffb7c5;
+    border-radius: 100% 0 100% 0;
+    box-shadow: 0 0 10px rgba(255, 183, 197, 0.4);
+    animation: sakura-fall linear infinite;
+    transform-origin: center;
+}
+
+@keyframes sakura-fall {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg) skewX(0deg);
+        top: -20px;
+    }
+    100% {
+        transform: translate3d(100px, 110vh, 200px) rotate(720deg) skewX(20deg);
+    }
+}

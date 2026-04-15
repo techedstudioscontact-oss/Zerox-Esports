@@ -91,8 +91,9 @@ export interface User {
   // --- Team System ---
   teamMembers?: string[]; // Array of accepted team member UIDs
 
-  onboardingComplete?: boolean; // True once the user has completed the onboarding form
   paidUser?: boolean; // Premium flag
+  onboardingComplete?: boolean; // True once the user has completed the onboarding form
+  showLiveBg?: boolean; // User preference for video background
 }
 
 export interface Tournament {

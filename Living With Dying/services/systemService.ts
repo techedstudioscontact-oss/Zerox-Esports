@@ -24,6 +24,8 @@ export interface SystemSettings {
         telegram?: string;
         website?: string;
     };
+    bgVideoUrl?: string;
+    bgImageUrl?: string;
 }
 
 const SYSTEM_DOC_REF = doc(db, 'settings', 'global');
