@@ -238,9 +238,11 @@ const App: React.FC = () => {
   const handleDeleteContent = async (id: string) => {
     try {
       await deleteContentFromDb(id);
-    } catch (error) {
+      toast.success('Content deleted successfully.');
+    } catch (error: any) {
       console.error("Failed to delete content:", error);
-      alert("Failed to delete content from server. Please try again.");
+      toast.error(`Delete failed: ${error?.message || 'Permission denied. Check Firestore rules.'}`);
+      throw error; // re-throw so MasterAdmin dashboard knows it failed
     }
   };
 

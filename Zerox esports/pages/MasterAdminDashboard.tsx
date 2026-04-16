@@ -225,7 +225,14 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
             message: 'WARNING: Permanently delete this tournament/game? This action cannot be undone.',
             confirmLabel: 'Delete Permanently',
             isDangerous: true,
-            onConfirm: async () => { await onDeleteContent(id); }
+            onConfirm: async () => {
+                try {
+                    await onDeleteContent(id);
+                } catch (e) {
+                    // Error toast is already shown in App.tsx's handleDeleteContent
+                    console.error('Delete failed:', e);
+                }
+            }
         });
     };
 
