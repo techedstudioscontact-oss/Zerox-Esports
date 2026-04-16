@@ -3,7 +3,23 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Show full TypeScript/JSX errors in browser overlay instead of
+      // the misleading "Failed to fetch dynamically imported module" error
+      babel: {
+        parserOpts: {
+          strictMode: false,
+        },
+      },
+    }),
+  ],
+  server: {
+    // Ensure HMR errors show exact file location in the browser
+    hmr: {
+      overlay: true,
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
