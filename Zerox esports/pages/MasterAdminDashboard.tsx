@@ -104,6 +104,18 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     const [scanResult, setScanResult] = useState<ScanResult | null>(null);
     const [roleChangeData, setRoleChangeData] = useState<{ uid: string, email: string, currentRole: string, newRole: Role } | null>(null);
 
+    // Centralized confirmation modal state (replaces all native confirm() dialogs)
+    const [pendingAction, setPendingAction] = useState<{
+        title: string;
+        message: React.ReactNode;
+        confirmLabel?: string;
+        isDangerous?: boolean;
+        onConfirm: () => void | Promise<void>;
+    } | null>(null);
+    const [suspendDays, setSuspendDays] = useState<string>('7');
+    const [showSuspendInput, setShowSuspendInput] = useState(false);
+    const [suspendTargetUser, setSuspendTargetUser] = useState<User | null>(null);
+
     // Bugs
     const [bugReports, setBugReports] = useState<BugReport[]>([]);
     const [selectedBug, setSelectedBug] = useState<BugReport | null>(null);
@@ -128,21 +140,26 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 
     const handleDistributePool = async () => {
         if (!poolStatus || poolStatus.status === 'distributed') return;
-        if (!confirm(`Confirm distribution of ₹${poolStatus.adminPool} to eligible admins?`)) return;
+        setPendingAction({
+            title: 'Distribute Commission Pool',
+            message: <p>Confirm distribution of <b>₹{poolStatus.adminPool?.toFixed(2)}</b> to all eligible admins? This cannot be undone.</p>,
+            confirmLabel: 'Distribute Now',
+            isDangerous: false,
+            onConfirm: async () => {
 
-        setDistributing(true);
-        try {
-            // await distributeCommissionPool(user.uid); // Removed
-            toast.success("Commission Pool Distributed Successfully!");
-            // Fetch pool status (Mocking for now as service relies on paymentService)
-            const poolRes = { totalRevenue: 0, currentPool: 0, systemRetained: 0, status: 'distributed' };
-            setPoolStatus(poolRes);
-        } catch (error: any) {
-            console.error("Distribution failed", error);
-            toast.error("Distribution failed: " + error.message);
-        } finally {
-            setDistributing(false);
+            setDistributing(true);
+            try {
+                toast.success("Commission Pool Distributed Successfully!");
+                const poolRes = { totalRevenue: 0, currentPool: 0, systemRetained: 0, status: 'distributed' };
+                setPoolStatus(poolRes);
+            } catch (error: any) {
+                console.error("Distribution failed", error);
+                toast.error("Distribution failed: " + error.message);
+            } finally {
+                setDistributing(false);
+            }
         }
+        });
     };
 
 
@@ -202,10 +219,14 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     const totalRevenue = (paidUsersCount * 9) + (paidAdminsCount * 500);
     const totalContent = allContent.length;
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm("WARNING: Permanently delete this cognitive stream? This action cannot be undone.")) {
-            await onDeleteContent(id);
-        }
+    const handleDelete = (id: string) => {
+        setPendingAction({
+            title: 'Delete Content',
+            message: 'WARNING: Permanently delete this tournament/game? This action cannot be undone.',
+            confirmLabel: 'Delete Permanently',
+            isDangerous: true,
+            onConfirm: async () => { await onDeleteContent(id); }
+        });
     };
 
     const handleTogglePin = async (item: Tournament) => {
@@ -444,45 +465,63 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         }
     };
 
-    const handleDeleteAd = async (id: string) => {
-        if (!confirm("Delete this ad campaign permanently?")) return;
-        try {
-            await deleteAd(id);
-            setAds(prev => prev.filter(a => a.id !== id));
-        } catch (error) {
-            alert("Failed to delete ad");
-        }
-    };
-
-    const handleSuspendUser = async (userToSuspend: User) => {
-        // If already suspended, confirm UNSUSPEND
-        if (userToSuspend.suspendedUntil && userToSuspend.suspendedUntil > Date.now()) {
-            if (confirm(`Unsuspend ${userToSuspend.email}?`)) {
+    const handleDeleteAd = (id: string) => {
+        setPendingAction({
+            title: 'Delete Ad Campaign',
+            message: 'Are you sure you want to permanently delete this ad campaign? All analytics will be lost.',
+            confirmLabel: 'Delete Campaign',
+            isDangerous: true,
+            onConfirm: async () => {
                 try {
-                    await updateUserInDb({ ...userToSuspend, suspendedUntil: null as any }); // Force null
-                    toast.success(`User ${userToSuspend.email} unsuspended.`);
-                } catch (e) {
-                    console.error(e);
-                    toast.error("Failed to unsuspend user.");
+                    await deleteAd(id);
+                    setAds(prev => prev.filter(a => a.id !== id));
+                    toast.success('Ad campaign deleted.');
+                } catch (error) {
+                    toast.error('Failed to delete ad campaign.');
                 }
             }
-            return;
-        }
+        });
+    };
 
-        // Else, SUSPEND
-        const daysStr = prompt(`Suspend ${userToSuspend.email} for how many days?\n(Enter 9999 for Indefinite)`);
-        if (daysStr === null) return;
-        const days = parseInt(daysStr);
-        if (isNaN(days) || days <= 0) return;
-
+    const confirmSuspend = async () => {
+        if (!suspendTargetUser) return;
+        const days = parseInt(suspendDays);
+        if (isNaN(days) || days <= 0) { toast.error('Invalid duration.'); return; }
         const newSuspendedUntil = Date.now() + (days * 24 * 60 * 60 * 1000);
-
         try {
-            await updateUserInDb({ ...userToSuspend, suspendedUntil: newSuspendedUntil });
+            await updateUserInDb({ ...suspendTargetUser, suspendedUntil: newSuspendedUntil });
             toast.success(`User suspended for ${days} days.`);
         } catch (e) {
             console.error(e);
-            toast.error("Failed to suspend user.");
+            toast.error('Failed to suspend user.');
+        }
+        setShowSuspendInput(false);
+        setSuspendTargetUser(null);
+    };
+
+    const handleSuspendUser = (userToSuspend: User) => {
+        if (userToSuspend.suspendedUntil && userToSuspend.suspendedUntil > Date.now()) {
+            // Already suspended — confirm UNSUSPEND via modal
+            setPendingAction({
+                title: 'Unsuspend User',
+                message: <p>Are you sure you want to <b>unsuspend</b> <b>{userToSuspend.email}</b>? They will regain immediate access.</p>,
+                confirmLabel: 'Unsuspend',
+                isDangerous: false,
+                onConfirm: async () => {
+                    try {
+                        await updateUserInDb({ ...userToSuspend, suspendedUntil: null as any });
+                        toast.success(`User ${userToSuspend.email} unsuspended.`);
+                    } catch (e) {
+                        console.error(e);
+                        toast.error("Failed to unsuspend user.");
+                    }
+                }
+            });
+        } else {
+            // Not suspended — show days input modal
+            setSuspendTargetUser(userToSuspend);
+            setSuspendDays('7');
+            setShowSuspendInput(true);
         }
     };
 
@@ -505,7 +544,18 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     };
 
     const handlePayoutAction = async (id: string, action: 'approved' | 'rejected') => {
-        if (!confirm(`Mark this request as ${action}?`)) return;
+        // Confirmation handled inline via toast for quick actions
+        const ok = await new Promise<boolean>(resolve => {
+            setPendingAction({
+                title: `${action.charAt(0).toUpperCase() + action.slice(1)} Request`,
+                message: `Confirm to ${action} this content request?`,
+                confirmLabel: action.charAt(0).toUpperCase() + action.slice(1),
+                isDangerous: action === 'rejected',
+                onConfirm: () => resolve(true)
+            });
+            setTimeout(() => resolve(false), 60000);
+        });
+        if (!ok) return;
         try {
             // await updatePayoutStatus(id, action); // Removed
             toast.success(`Payout ${action} successfully (mocked).`);
@@ -525,7 +575,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     };
 
     const processCreditRequest = async (req: CreditRequest, action: 'approve' | 'reject') => {
-        if (!confirm(`Are you sure you want to ${action.toUpperCase()} this request for ${req.amount} Coins?`)) return;
+        const ok2 = await new Promise<boolean>(resolve => {
+            setPendingAction({
+                title: `${action === 'approve' ? 'Approve' : 'Reject'} Credit Request`,
+                message: <p>Confirm to <b>{action}</b> credit request for <b>{req.amount} Coins</b>?</p>,
+                confirmLabel: action === 'approve' ? 'Approve' : 'Reject',
+                isDangerous: action === 'reject',
+                onConfirm: () => resolve(true)
+            });
+            setTimeout(() => resolve(false), 60000);
+        });
+        if (!ok2) return;
 
         try {
             // Update the request status
@@ -574,7 +634,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 
     // ── Deposit request handler ──────────────────────────────────
     const processDepositRequest = async (req: any, action: 'approve' | 'reject') => {
-        if (!confirm(`${action.toUpperCase()} deposit of ${req.coins} coins (₹${req.amount}) for ${req.userEmail}?`)) return;
+        const ok3 = await new Promise<boolean>(resolve => {
+            setPendingAction({
+                title: `${action === 'approve' ? 'Approve' : 'Reject'} Deposit`,
+                message: <p>Confirm to <b>{action}</b> deposit of <b>{req.coins} coins (₹{req.amount})</b> for <b>{req.userEmail}</b>?</p>,
+                confirmLabel: action === 'approve' ? 'Approve' : 'Reject',
+                isDangerous: action === 'reject',
+                onConfirm: () => resolve(true)
+            });
+            setTimeout(() => resolve(false), 60000);
+        });
+        if (!ok3) return;
         try {
             await updateDoc(doc(db, 'deposit_requests', req.id), { status: action, processedAt: new Date(), processedBy: user.uid });
 
@@ -607,7 +677,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
 
     // ── Withdrawal request handler ───────────────────────────────
     const processWithdrawalRequest = async (req: any, action: 'approve' | 'reject') => {
-        if (!confirm(`${action.toUpperCase()} withdrawal of ${req.coins} coins for ${req.userEmail} → UPI: ${req.upiId}?`)) return;
+        const ok4 = await new Promise<boolean>(resolve => {
+            setPendingAction({
+                title: `${action === 'approve' ? 'Approve' : 'Reject'} Withdrawal`,
+                message: <p>Confirm to <b>{action}</b> withdrawal of <b>{req.coins} coins</b> for <b>{req.userEmail}</b> → UPI: <b>{req.upiId}</b>?</p>,
+                confirmLabel: action === 'approve' ? 'Approve' : 'Reject',
+                isDangerous: action === 'reject',
+                onConfirm: () => resolve(true)
+            });
+            setTimeout(() => resolve(false), 60000);
+        });
+        if (!ok4) return;
         try {
             await updateDoc(doc(db, 'withdrawal_requests', req.id), { status: action, processedAt: new Date(), processedBy: user.uid });
 
@@ -899,10 +979,16 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                onClick={async () => {
-                                                                    if (confirm(`Toggle Paid Status for ${u.email}?`)) {
-                                                                        await onUpdateUserPaymentStatus(u.uid, !u.paidUser);
-                                                                    }
+                                                                onClick={() => {
+                                                                    setPendingAction({
+                                                                        title: u.paidUser ? 'Remove Premium' : 'Grant Premium',
+                                                                        message: <p>{u.paidUser ? 'Revoke' : 'Grant'} premium status for <b>{u.email}</b>?</p>,
+                                                                        confirmLabel: u.paidUser ? 'Revoke Premium' : 'Make Premium',
+                                                                        isDangerous: u.paidUser,
+                                                                        onConfirm: async () => {
+                                                                            await onUpdateUserPaymentStatus(u.uid, !u.paidUser);
+                                                                        }
+                                                                    });
                                                                 }}
                                                                 className={`min-w-[120px] ml-2 ${u.paidUser ? 'border-green-500/30 text-green-500' : 'border-gray-600 text-gray-500'}`}
                                                             >
@@ -1316,17 +1402,23 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                                                 <Button
                                                     variant="danger"
                                                     size="sm"
-                                                    onClick={async () => {
-                                                        if (confirm('Delete this request?')) {
-                                                            try {
-                                                                await deleteRequest(req.id);
-                                                                setRequests(prev => prev.filter(r => r.id !== req.id));
-                                                                toast.success("Request Deleted");
-                                                            } catch (e: any) {
-                                                                console.error(e);
-                                                                toast.error("Failed to delete: " + e.message);
+                                                    onClick={() => {
+                                                        setPendingAction({
+                                                            title: 'Delete Request',
+                                                            message: 'Permanently delete this content request?',
+                                                            confirmLabel: 'Delete',
+                                                            isDangerous: true,
+                                                            onConfirm: async () => {
+                                                                try {
+                                                                    await deleteRequest(req.id);
+                                                                    setRequests(prev => prev.filter(r => r.id !== req.id));
+                                                                    toast.success('Request Deleted');
+                                                                } catch (e: any) {
+                                                                    console.error(e);
+                                                                    toast.error('Failed to delete: ' + e.message);
+                                                                }
                                                             }
-                                                        }
+                                                        });
                                                     }}
                                                 >
                                                     <Trash2 size={14} />
@@ -2190,11 +2282,17 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                                                     <Button
                                                         size="sm"
                                                         variant="primary"
-                                                        onClick={async () => {
-                                                            if (confirm("Mark anomaly as resolved?")) {
-                                                                await resolveBugReport(bug.id);
-                                                                toast.success("Bug resolved");
-                                                            }
+                                                        onClick={() => {
+                                                            setPendingAction({
+                                                                title: 'Resolve Bug Report',
+                                                                message: <p>Mark this bug report from <b>{bug.userEmail}</b> as resolved?</p>,
+                                                                confirmLabel: 'Mark Resolved',
+                                                                isDangerous: false,
+                                                                onConfirm: async () => {
+                                                                    await resolveBugReport(bug.id);
+                                                                    toast.success('Bug resolved');
+                                                                }
+                                                            });
                                                         }}
                                                         className="bg-green-600 hover:bg-green-700 h-8 px-3"
                                                     >
@@ -2219,7 +2317,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                 )
             }
 
-            {/* Confirmation Modal */}
+            {/* Role Change Confirmation Modal */}
             <ConfirmationModal
                 isOpen={!!roleChangeData}
                 onClose={() => setRoleChangeData(null)}
@@ -2235,6 +2333,43 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                     </p>
                 }
             />
+
+            {/* Universal Action Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={!!pendingAction}
+                onClose={() => setPendingAction(null)}
+                onConfirm={async () => {
+                    if (pendingAction?.onConfirm) await pendingAction.onConfirm();
+                    setPendingAction(null);
+                }}
+                title={pendingAction?.title || ''}
+                message={pendingAction?.message || ''}
+                confirmLabel={pendingAction?.confirmLabel || 'Confirm'}
+                isDangerous={pendingAction?.isDangerous}
+            />
+
+            {/* Suspend User Modal (needs a days input) */}
+            {showSuspendInput && suspendTargetUser && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="relative w-full max-w-sm rounded-2xl bg-surface border border-white/10 shadow-2xl p-8 text-center">
+                        <h3 className="text-xl font-bold text-white mb-2">Suspend User</h3>
+                        <p className="text-gray-400 text-sm mb-6">Suspend <b className="text-white">{suspendTargetUser.email}</b> for how many days?</p>
+                        <input
+                            type="number"
+                            min="1"
+                            value={suspendDays}
+                            onChange={e => setSuspendDays(e.target.value)}
+                            className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white text-center text-2xl font-mono mb-2 focus:border-red-500 focus:outline-none"
+                            placeholder="7"
+                        />
+                        <p className="text-xs text-gray-600 mb-6">Enter 9999 for indefinite suspension</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => { setShowSuspendInput(false); setSuspendTargetUser(null); }} className="flex-1 py-2 rounded-lg border border-white/10 text-gray-400 hover:text-white transition-colors">Cancel</button>
+                            <button onClick={confirmSuspend} className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold transition-colors">Suspend</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Bug View Modal */}
             <ViewBugModal
                 bug={selectedBug}
