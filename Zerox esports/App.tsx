@@ -126,9 +126,12 @@ const App: React.FC = () => {
     // NOTE: content rule is `allow read: if true` — no auth needed once rules are published
     const unsubscribeContent = subscribeToContent((updatedContent) => {
       if (isMounted) {
+        // Always update — even if empty (handles the case where last item is deleted)
+        setContent(updatedContent);
         if (updatedContent.length > 0) {
-          setContent(updatedContent);
           localStorage.setItem('zerox_content_cache', JSON.stringify(updatedContent));
+        } else {
+          localStorage.removeItem('zerox_content_cache');
         }
         setLoading(false);
       }
@@ -238,11 +241,26 @@ const App: React.FC = () => {
   const handleDeleteContent = async (id: string) => {
     try {
       await deleteContentFromDb(id);
+      // Immediately remove from local state so UI updates without waiting for Firestore listener
+      setContent(prev => prev.filter(item => item.id !== id));
+      // Also clean the localStorage cache
+      const cached = localStorage.getItem('zerox_content_cache');
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          const updated = parsed.filter((item: any) => item.id !== id);
+          if (updated.length > 0) {
+            localStorage.setItem('zerox_content_cache', JSON.stringify(updated));
+          } else {
+            localStorage.removeItem('zerox_content_cache');
+          }
+        } catch {}
+      }
       toast.success('Content deleted successfully.');
     } catch (error: any) {
       console.error("Failed to delete content:", error);
       toast.error(`Delete failed: ${error?.message || 'Permission denied. Check Firestore rules.'}`);
-      throw error; // re-throw so MasterAdmin dashboard knows it failed
+      throw error;
     }
   };
 
