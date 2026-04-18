@@ -209,10 +209,6 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         type: 'preroll'
     });
 
-    if (user.role !== 'superadmin' && user.role !== 'masteradmin' && user.role !== 'manager') {
-        return <div className="p-20 text-red-500 font-bold text-center font-mono">ACCESS DENIED. INCIDENT REPORTED.</div>;
-    }
-
     // Real mock aggregates based on props
     const paidUsersCount = allUsers.filter(u => u.paidUser).length;
     const paidAdminsCount = allUsers.filter(u => u.paidAdmin).length;
@@ -753,6 +749,10 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     }, [ads]);
 
     // PayoutsManager component removed
+
+    if (user.role !== 'superadmin' && user.role !== 'masteradmin' && user.role !== 'manager') {
+        return <div className="p-20 text-red-500 font-bold text-center font-mono">ACCESS DENIED. INCIDENT REPORTED.</div>;
+    }
 
     return (
         <div className="min-h-screen pt-24 px-4 pb-12 bg-black/90">
