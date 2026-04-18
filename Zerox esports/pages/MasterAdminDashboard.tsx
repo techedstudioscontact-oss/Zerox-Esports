@@ -93,8 +93,8 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     const [antiCheatUrl, setAntiCheatUrl] = useState(systemSettings?.antiCheatUrl || "");
     const [bgVideoUrl, setBgVideoUrl] = useState(systemSettings?.bgVideoUrl || "");
     const [bgImageUrl, setBgImageUrl] = useState(systemSettings?.bgImageUrl || "");
-    const [cloudinaryCloudName, setCloudinaryCloudName] = useState("");
-    const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState("");
+    const [cloudinaryCloudName, setCloudinaryCloudName] = useState(import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "");
+    const [cloudinaryUploadPreset, setCloudinaryUploadPreset] = useState(import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "");
     const [uploadingFile, setUploadingFile] = useState<'main' | 'anticheat' | 'bgVideo' | 'bgImage' | null>(null);
 
     const [saving, setSaving] = useState(false);

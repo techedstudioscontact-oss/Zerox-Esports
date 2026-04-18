@@ -105,107 +105,116 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({ content, isUnloc
   return (
     <>
       <div
-        className="relative w-full rounded-xl overflow-hidden border border-white/5 bg-[#121215] shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(255,50,50,0.15)] hover:border-red-500/30 transition-all duration-300 transform hover:-translate-y-1 group"
+        onClick={handleCardClick}
+        className="relative w-full rounded-[32px] overflow-hidden border border-white/[0.08] bg-white/[0.04] backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_60px_rgba(255,59,48,0.15)] hover:border-primary/40 transition-all duration-500 transform hover:-translate-y-2 group cursor-pointer"
         style={{ fontFamily: "'Inter', sans-serif" }}
       >
         {/* ── Banner Image ──────────────────────────────────────── */}
-        <div className="relative h-36 w-full bg-black overflow-hidden">
+        <div className="relative h-48 w-full bg-[#050505] overflow-hidden">
           {content.thumbnailUrl ? (
-            <img src={content.thumbnailUrl} alt={content.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+            <img src={content.thumbnailUrl} alt={content.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-black flex items-center justify-center">
-              <span className="font-black text-white/10 text-6xl italic transform -skew-x-12">{content.title?.[0]}</span>
+            <div className="w-full h-full bg-gradient-to-br from-primary/10 via-black to-black flex items-center justify-center">
+              <span className="font-black text-white/5 text-8xl italic transform -skew-x-12 select-none tracking-tighter">{content.title?.[0]}</span>
             </div>
           )}
           
+          {/* Overlay Gradient for Image readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+
           {/* Status Badge */}
-          <div className="absolute top-3 right-3 flex items-center gap-2">
-            {isOngoing && <span className="px-2 py-1 bg-green-500/90 text-white text-[10px] font-black rounded-sm tracking-wider shadow-[0_0_10px_rgba(34,197,94,0.5)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />LIVE</span>}
-            {isUpcoming && <span className="px-2 py-1 bg-blue-600/90 text-white text-[10px] font-black uppercase rounded-sm border border-blue-400/50 shadow-lg">Upcoming</span>}
-            {isDone && <span className="px-2 py-1 bg-orange-600/90 text-white text-[10px] font-black uppercase rounded-sm shadow-lg">Results</span>}
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            {isOngoing && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 backdrop-blur-md border border-green-500/30 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]" />
+                <span className="text-[10px] font-black tracking-[0.1em] text-white uppercase italic">Live Now</span>
+              </div>
+            )}
+            {isUpcoming && <span className="px-3 py-1.5 bg-blue-500/10 backdrop-blur-md border border-blue-500/30 text-white text-[10px] font-black uppercase rounded-full tracking-widest shadow-xl">Scheduled</span>}
+            {isDone && <span className="px-3 py-1.5 bg-white/5 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase rounded-full tracking-widest">Concluded</span>}
           </div>
 
           {/* Floating Tags Overlay */}
-          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
-            {content.teamSize && <span className="px-2 py-1 rounded text-[9px] font-black tracking-widest uppercase text-white bg-black/60 border border-white/10 backdrop-blur-md">{content.teamSize}</span>}
-            {content.map && <span className="px-2 py-1 rounded text-[9px] font-black tracking-widest uppercase text-white bg-black/60 border border-white/10 backdrop-blur-md">{content.map}</span>}
+          <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
+            {content.teamSize && <span className="px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase text-white bg-white/10 backdrop-blur-xl border border-white/10 shadow-lg">{content.teamSize}</span>}
+            {content.map && <span className="px-3 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase text-[rgba(0,210,255,1)] bg-cyan-500/10 backdrop-blur-xl border border-cyan-500/20 shadow-lg">{content.map}</span>}
           </div>
         </div>
 
-        {/* ── Header ──────────────────────────────────────────────── */}
-        <div className="px-4 pt-3 pb-2 z-10 relative bg-gradient-to-b from-[#121215] to-transparent">
-          {countdown && countdown !== 'Started' && (
-             <p className="text-[10px] text-orange-500 font-bold mb-1 tracking-widest uppercase flex items-center gap-1">
-               <span className="w-1 h-1 bg-orange-500 rounded-full" /> Starts in: {countdown}
-             </p>
-          )}
-          {countdown === 'Started' && (
-             <p className="text-[10px] text-green-500 font-bold mb-1 tracking-widest uppercase flex items-center gap-1">
-               <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" /> Matches Underway
-             </p>
-          )}
-          <h3 className="text-lg font-black text-white leading-tight line-clamp-1 truncate transition-colors group-hover:text-primary">
-            {content.title}
-          </h3>
-        </div>
+        {/* ── Info Container ─────────────────────────────────────────── */}
+        <div className="relative p-6">
+          {/* Title and Countdown */}
+          <div className="mb-4">
+            {countdown && countdown !== 'Started' && (
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex gap-1">
+                  <span className="w-1 h-3 bg-orange-500 rounded-full animate-pulse" />
+                  <span className="w-1 h-3 bg-orange-500/50 rounded-full animate-pulse delay-75" />
+                </div>
+                <span className="text-[10px] text-orange-400 font-black tracking-[0.2em] uppercase">Connect in {countdown}</span>
+              </div>
+            )}
+            <h3 className="text-xl font-black text-white leading-tight tracking-tight group-hover:text-glow-primary transition-all duration-300">
+              {content.title}
+            </h3>
+          </div>
 
-        {/* ── Meta row: Prize | Per Kill | Date ─────────────────── */}
-        <div className="px-4 py-3 bg-white/[0.02] border-y border-white/5 flex items-center justify-between">
-           <div className="flex flex-col">
-             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Prize Pool</span>
-             <span className="text-white font-black text-sm">{content.prizePool ? `₹${content.prizePool}` : '₹0'}</span>
-           </div>
-           <div className="h-8 w-px bg-white/10" />
-           <div className="flex flex-col items-center">
-             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Per Kill</span>
-             <span className="text-green-500 font-black text-sm">₹0</span>
-           </div>
-           <div className="h-8 w-px bg-white/10" />
-           <div className="flex flex-col text-right">
-             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Date</span>
-             <span className="text-gray-300 font-bold text-xs">{formattedDate?.split('|')[0]?.trim() || 'TBA'}</span>
-           </div>
-        </div>
-
-        {/* ── Players & Slot Progress ─────────────────────────────── */}
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-             <div className="flex items-center -space-x-1.5">
-               {slotsUsed === 0 ? (
-                 <span className="text-[10px] font-medium text-gray-500 flex items-center gap-1"><Users size={12} className="text-gray-600"/> Be the first!</span>
-               ) : (
-                 <>
-                   {visibleRegs.map((reg, i) => (
-                     <div key={reg.id} title={reg.userEmail} className={`w-6 h-6 rounded-full border border-[#121215] flex items-center justify-center text-[9px] font-black text-white ${getAvatarColor(reg.userEmail)} z-${10 - i}`}>
-                       {getInitials(reg.userEmail)}
-                     </div>
-                   ))}
-                   {overflowCount > 0 && (
-                     <div className="w-6 h-6 rounded-full border border-[#121215] bg-gray-800 flex items-center justify-center text-[8px] font-black text-gray-300">
-                       +{overflowCount}
-                     </div>
-                   )}
-                 </>
-               )}
+          {/* ── Stats Grid: Prize & Kill ─────────────────── */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+             <div className="p-3 bg-white/[0.03] border border-white/[0.05] rounded-2xl">
+               <span className="text-[9px] text-gray-500 uppercase tracking-widest font-black block mb-1">Prize Pool</span>
+               <span className="text-white font-black text-lg text-glow tracking-tighter italic">
+                 {content.prizePool ? `₹${content.prizePool}` : '₹0'}
+               </span>
              </div>
-             <div className="text-right">
-               <span className="text-[11px] font-black text-white leading-none block">{slotsUsed}/{maxSlots} Joined</span>
-               <span className="text-[9px] text-orange-500 font-bold uppercase tracking-wide">{spotsLeft} Spots Left</span>
+             <div className="p-3 bg-white/[0.03] border border-white/[0.05] rounded-2xl">
+               <span className="text-[9px] text-gray-500 uppercase tracking-widest font-black block mb-1">Entry Fee</span>
+               <span className="text-green-400 font-black text-lg tracking-tighter italic">
+                 {content.entryFee ? `₹${content.entryFee}` : 'Free'}
+               </span>
              </div>
           </div>
-          <div className="w-full h-1.5 bg-black/60 rounded-full overflow-hidden border border-white/5">
-            <div className="h-full bg-gradient-to-r from-orange-600 to-primary rounded-full shadow-[0_0_10px_rgba(235,27,36,0.5)]" style={{ width: `${slotPct}%` }} />
-          </div>
-        </div>
 
-        {/* ── Actions ──────────────────────────────────────────────── */}
-        <div className="px-4 pb-4 pt-1 flex gap-2">
-           <button onClick={handleCardClick} className="flex-[3] py-2.5 rounded bg-gradient-to-r from-primary to-orange-600 text-white text-[11px] font-black tracking-widest uppercase hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(235,27,36,0.3)]">
-             {isDone ? 'Results' : content.entryFee ? `Pay ₹${content.entryFee} & Join` : 'Free Join'}
-           </button>
-           <button onClick={handleCardClick} className="flex-[2] py-2.5 rounded bg-white/5 border border-white/10 text-gray-300 text-[11px] font-black tracking-widest uppercase hover:bg-white/10 hover:text-white transition-colors">
-             Details
-           </button>
+          {/* ── Footer Row: Players & Action ─────────────────────────────── */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+               <div className="flex items-center -space-x-2">
+                 {slotsUsed === 0 ? (
+                   <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.1em] flex items-center gap-2"><Users size={12} /> Be the first</span>
+                 ) : (
+                   <>
+                     {visibleRegs.map((reg, i) => (
+                       <div key={reg.id} title={reg.userEmail} className={`w-8 h-8 rounded-full border-2 border-[#121215] flex items-center justify-center text-[10px] font-black text-white ${getAvatarColor(reg.userEmail)} z-${10 - i} shadow-lg shadow-black/40`}>
+                         {getInitials(reg.userEmail)}
+                       </div>
+                     ))}
+                     {overflowCount > 0 && (
+                       <div className="w-8 h-8 rounded-full border-2 border-[#121215] bg-surfaceHighlight flex items-center justify-center text-[9px] font-black text-white z-0 shadow-lg">
+                         +{overflowCount}
+                       </div>
+                     )}
+                   </>
+                 )}
+               </div>
+               <div className="text-right">
+                 <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.1em] block mb-0.5">{slotsUsed}/{maxSlots} Registered</span>
+                 <span className="text-xs text-orange-400 font-black tracking-widest uppercase italic">{spotsLeft} Spots left</span>
+               </div>
+            </div>
+
+            {/* Progress Bar (Glow Style) */}
+            <div className="relative h-2 bg-black/40 rounded-full overflow-hidden border border-white/[0.05]">
+              <div className="absolute inset-y-0 left-0 bg-gradient-to-r from-orange-600 to-primary rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(235,27,36,0.6)]" style={{ width: `${slotPct}%` }} />
+            </div>
+
+            {/* Quick Button */}
+            <button 
+              className="w-full py-4 rounded-2xl bg-white/[0.05] border border-white/[0.1] text-white text-[11px] font-black tracking-[0.3em] uppercase hover:bg-primary hover:border-primary transition-all duration-300 shadow-xl group/btn overflow-hidden relative"
+            >
+              <span className="relative z-10">{isDone ? 'View Results' : 'Join Arena'}</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-shimmer" />
+            </button>
+          </div>
         </div>
       </div>
 
