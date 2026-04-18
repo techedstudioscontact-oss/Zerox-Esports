@@ -28,8 +28,7 @@ const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: 
 const Wallet = lazy(() => import('./pages/Wallet').then(module => ({ default: module.Wallet })));
 const NewsPage = lazy(() => import('./pages/NewsPage').then(module => ({ default: module.NewsPage })));
 const GamePage = lazy(() => import('./pages/GamePage').then(module => ({ default: module.GamePage })));
-
-
+const Community = lazy(() => import('./pages/Community').then(module => ({ default: module.Community })));
 
 
 const preLoad = () => {
@@ -43,6 +42,7 @@ const preLoad = () => {
   import('./pages/ManagerDashboard');
   import('./pages/Profile');
   import('./pages/Wallet');
+  import('./pages/Community');
 };
 
 const App: React.FC = () => {
@@ -415,6 +415,8 @@ const App: React.FC = () => {
                     <Route path="/news" element={<NewsPage />} />
 
                     <Route path="/game/:gameId" element={<GamePage user={user} content={content} />} />
+
+                    <Route path="/community" element={<Community user={user} />} />
 
                     {/* Normal Admin Route - Now allows Super Admin for Uploader access */}
                     <Route path="/admin" element={

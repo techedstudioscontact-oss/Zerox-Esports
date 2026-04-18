@@ -1,7 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
     // Default Rule: Deny all (Secure by default)
     match /{document=**} {
       allow read, write: if false;
@@ -11,12 +10,12 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function getUserData() {
       let path = /databases/$(database)/documents/users/$(request.auth.uid);
       return exists(path) ? get(path).data : {"role": "user"};
     }
-    
+
     function isSuperAdmin() {
       return isAuthenticated() && getUserData().role == 'superadmin';
     }
@@ -151,5 +150,18 @@ service cloud.firestore {
       allow read, update, delete: if isAuthenticated() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId || isAdmin());
     }
 
+    // 16. Staff Applications (NEW)
+    match /staff_applications/{appId} {
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && (isAdmin() || request.auth.uid == resource.data.userId);
+      allow update, delete: if isMasterAdmin();
+    }
+
+    // 17. Global Chat (NEW)
+    match /global_chat/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isMasterAdmin();
+    }
   }
 }

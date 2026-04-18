@@ -6,6 +6,7 @@ import { AboutModal } from './AboutModal';
 import { BugReportModal } from './BugReportModal'; // Import
 import { Bug } from 'lucide-react'; // Import
 import { SupportChatModal } from './SupportChatModal';
+import { StaffApplicationModal } from './StaffApplicationModal'; // Import
 import { TeamModal } from './TeamModal';
 import { subscribeToSystemSettings, SystemSettings } from '../services/systemService';
 import { Download } from 'lucide-react';
@@ -31,6 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
     const [showBugModal, setShowBugModal] = React.useState(false);
     const [showSupportChat, setShowSupportChat] = React.useState(false);
     const [showTeamModal, setShowTeamModal] = React.useState(false);
+    const [showStaffApp, setShowStaffApp] = React.useState(false);
     const [settings, setSettings] = React.useState<SystemSettings | null>(null);
 
     React.useEffect(() => {
@@ -55,18 +57,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
         onClose();
     };
 
-    if (!isOpen) return null;
+    const isAnyModalOpen = showAboutModal || showBugModal || showSupportChat || showTeamModal || showStaffApp;
+
+    if (!isOpen && !isAnyModalOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-                onClick={onClose}
-            />
+        <>
+            {isOpen && (
+                <div className="fixed inset-0 z-[100] flex">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+                        onClick={onClose}
+                    />
 
-            {/* Sidebar Drawer */}
-            <div className="relative w-[320px] h-full bg-[#0a0a0b]/80 backdrop-blur-3xl border-r border-white/[0.08] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col animate-slide-in-left">
+                    {/* Sidebar Drawer */}
+                    <div className="relative w-[320px] h-full bg-[#0a0a0b]/80 backdrop-blur-3xl border-r border-white/[0.08] shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col animate-slide-in-left">
                 {/* Header */}
                 <div className="p-8 flex items-center justify-between border-b border-white/[0.05]">
                     <div className="flex items-center gap-4 group">
@@ -76,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                         </div>
                         <div className="flex flex-col">
                             <span className="font-black text-2xl tracking-tighter text-white uppercase italic">Zerox</span>
-                            <span className="text-[9px] text-gray-500 font-black tracking-[0.3em] uppercase leading-none">System</span>
+                            <span className="text-[9px] text-gray-500 font-black tracking-[0.3em] uppercase leading-none">eSports</span>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2.5 hover:bg-white/10 rounded-2xl text-gray-500 hover:text-white transition-all">
@@ -118,18 +124,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
 
                 {/* Navigation Links */}
                 <div className="flex-1 overflow-y-auto py-8 px-4 space-y-1 scrollbar-hide">
-                    <NavItem icon={<Home size={20} />} label="Command Center" onClick={() => handleNavigation('/')} />
-                    <NavItem icon={<Wallet size={20} />} label="Capital Wallet" onClick={() => handleNavigation('/wallet')} highlight color="text-yellow-500" />
-                    {user && <NavItem icon={<Users size={20} />} label="Unit Squadron" onClick={() => setShowTeamModal(true)} highlight color="text-blue-500" />}
-                    <div className="px-4 py-2 mt-4 text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">Directives</div>
-                    <NavItem icon={<Newspaper size={20} />} label="Intel Feed" onClick={() => handleNavigation('/news')} />
-                    <NavItem icon={<Tv size={20} />} label="Active Arenas" onClick={() => handleNavigation('/?filter=tournaments')} />
-                    <NavItem icon={<Heart size={20} />} label="Tactical Deck" onClick={() => handleNavigation('/mylist')} />
+                    <NavItem icon={<Home size={20} />} label="Home" onClick={() => handleNavigation('/')} />
+                    <NavItem icon={<Wallet size={20} />} label="My Wallet" onClick={() => handleNavigation('/wallet')} highlight color="text-yellow-500" />
+                    {user && <NavItem icon={<Users size={20} />} label="My Team" onClick={() => setShowTeamModal(true)} highlight color="text-blue-500" />}
+                    <div className="px-4 py-2 mt-4 text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">Explore</div>
+                    <NavItem icon={<Users size={20} />} label="Community Hub" onClick={() => handleNavigation('/community')} highlight color="text-green-500" />
+                    <NavItem icon={<Newspaper size={20} />} label="Platform News" onClick={() => handleNavigation('/news')} />
+                    <NavItem icon={<Tv size={20} />} label="Tournaments" onClick={() => handleNavigation('/?filter=tournaments')} />
+                    <NavItem icon={<Heart size={20} />} label="My Tournaments" onClick={() => handleNavigation('/mylist')} />
 
                     {settings?.antiCheatUrl && (
                         <NavItem
                             icon={<Download size={20} />}
-                            label="Anti-Cheat Ops"
+                            label="Download Anti-Cheat"
                             onClick={() => {
                                 window.open(settings.antiCheatUrl, '_blank');
                                 onClose();
@@ -146,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                         <>
                             <NavItem
                                 icon={<Shield size={20} />}
-                                label="Master Panel"
+                                label="Master Dashboard"
                                 onClick={() => handleNavigation('/admin')}
                                 highlight
                                 color="text-primary"
@@ -161,14 +168,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                         />
                     )}
 
-                    <NavItem icon={<Settings size={20} />} label="Encryption Keys" onClick={() => handleNavigation('/profile')} />
-                    <NavItem icon={<Info size={20} />} label="System Specs" onClick={() => setShowAboutModal(true)} />
+                    <NavItem icon={<Settings size={20} />} label="Settings" onClick={() => handleNavigation('/profile')} />
+                    <NavItem icon={<Info size={20} />} label="About App" onClick={() => setShowAboutModal(true)} />
 
                     <div className="my-4 border-t border-white/[0.05]" />
 
                     <NavItem
                         icon={<Bug size={20} />}
-                        label="Debug Report"
+                        label="Report Bug"
                         onClick={() => setShowBugModal(true)}
                         highlight
                         className="text-red-400/80 bg-red-400/5 border-red-400/20"
@@ -179,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                         <>
                             <NavItem
                                 icon={<MessageCircle size={20} />}
-                                label="Comms Support"
+                                label="Live Support Chat"
                                 onClick={() => { setShowSupportChat(true); onClose(); }}
                                 highlight
                                 color="text-secondary"
@@ -188,7 +195,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                                 icon={<Users size={20} />}
                                 label="Apply for Staff"
                                 onClick={() => {
-                                    window.open('https://docs.google.com/forms', '_blank');
+                                    setShowStaffApp(true);
                                     onClose();
                                 }}
                                 className="text-purple-400/80 hover:text-purple-300"
@@ -204,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                             onClick={onLogout}
                             className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl bg-red-500/5 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all font-black uppercase tracking-widest text-[11px]"
                         >
-                            <LogOut size={18} /> Terminal Exit
+                            <LogOut size={18} /> Logout
                         </button>
                     ) : (
                         <div className="flex gap-3">
@@ -227,14 +234,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                     </p>
                 </div>
             </div>
+            </div>
+            )}
 
             <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />
             <BugReportModal isOpen={showBugModal} onClose={() => setShowBugModal(false)} user={user} />
             <TeamModal isOpen={showTeamModal} onClose={() => setShowTeamModal(false)} user={user} />
+            {user && <StaffApplicationModal isOpen={showStaffApp} onClose={() => setShowStaffApp(false)} user={user} />}
             {showSupportChat && user && (
                 <SupportChatModal user={user} onClose={() => setShowSupportChat(false)} />
             )}
-        </div>
+        </>
     );
 };
 

@@ -240,3 +240,24 @@ export interface TeamRequest {
   status: 'pending' | 'accepted' | 'rejected';
   timestamp: number; // Date.now()
 }
+
+export interface StaffApplication {
+  id: string;
+  userId: string;
+  userEmail: string;
+  roleApplied: 'moderator' | 'event_manager' | 'support' | 'content_creator';
+  discordHandle: string;
+  experience: string;
+  status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
+  submittedAt: number; // timestamp
+}
+
+export interface GlobalChatMessage {
+  id: string;
+  userId: string;
+  userEmail: string;
+  userName: string; // user.displayName or email prefix
+  userRole: Role;
+  text: string;
+  timestamp: number; // timestamp
+}

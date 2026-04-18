@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { runSystemScan, fixUserIssues, fixContentIssues, ScanResult } from '../services/diagnosticsService';
 import { db, auth } from '../firebase';
-import { User, Tournament, Role, AdCampaign } from '../types';
+import { User, Tournament, Role, AdCampaign, StaffApplication } from '../types';
 import { SystemSettings, updateSystemSettings } from '../services/systemService';
 import { subscribeToRequests, deleteRequest, ContentRequest } from '../services/requestService';
 import { createAd, getAllAds, updateAd, deleteAd } from '../services/adService';
@@ -42,7 +42,7 @@ interface MasterAdminDashboardProps {
     onUpdateUserPaymentStatus: (uid: string, isPaid: boolean) => Promise<void>;
 }
 
-type Tab = 'overview' | 'content' | 'users' | 'settings' | 'payouts' | 'requests' | 'ads' | 'analytics' | 'notifications' | 'diagnostics' | 'bugs' | 'commissions';
+type Tab = 'overview' | 'content' | 'users' | 'settings' | 'payouts' | 'requests' | 'ads' | 'analytics' | 'notifications' | 'diagnostics' | 'bugs' | 'commissions' | 'staff_apps';
 
 interface CreditRequest {
     id: string;
@@ -123,6 +123,10 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
     // Commission Pool State
     const [poolStatus, setPoolStatus] = useState<RevenuePool | null>(null);
     const [distributing, setDistributing] = useState(false);
+
+    // Staff Applications Data
+    const [staffApps, setStaffApps] = useState<StaffApplication[]>([]);
+    const [loadingStaffApps, setLoadingStaffApps] = useState(false);
 
     useEffect(() => {
         if (activeTab === 'commissions') {
@@ -425,6 +429,16 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
         }
         if (activeTab === 'ads' || activeTab === 'analytics') {
             loadAds();
+        }
+        if (activeTab === 'staff_apps') {
+            const qApps = query(collection(db, 'staff_applications'));
+            const unsubApps = onSnapshot(qApps, (snap) => {
+                const apps: StaffApplication[] = [];
+                snap.forEach(d => apps.push({ id: d.id, ...d.data() } as StaffApplication));
+                apps.sort((a, b) => b.submittedAt - a.submittedAt);
+                setStaffApps(apps);
+            });
+            return () => unsubApps();
         }
     }, [activeTab]);
 
@@ -788,6 +802,7 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                     <TabButton id="diagnostics" label="System Health" icon={Shield} />
                     <TabButton id="bugs" label="Bug Reports" icon={Bug} />
                     <TabButton id="commissions" label="Commissions" icon={Coins} />
+                    <TabButton id="staff_apps" label="Staff Apps" icon={ShieldCheck} />
                 </div>
 
                 <div className="animate-fade-in">
@@ -2324,7 +2339,106 @@ export const MasterAdminDashboard: React.FC<MasterAdminDashboardProps> = ({
                 )
             }
 
-            {/* Role Change Confirmation Modal */}
+            {/* STAFF APPS TAB */}
+            {activeTab === 'staff_apps' && (
+                <div className="glass-panel rounded-xl border border-white/10 overflow-hidden flex flex-col min-h-[500px] animate-fade-in">
+                    <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+                        <h3 className="text-lg font-bold text-white font-display flex items-center gap-2">
+                            <ShieldCheck size={18} className="text-blue-500" /> Staff Applications
+                        </h3>
+                        <div className="text-[10px] font-mono text-gray-500">{staffApps.length} APPS</div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-black/40 text-[10px] uppercase text-gray-500 font-mono">
+                                <tr>
+                                    <th className="p-4">Applicant</th>
+                                    <th className="p-4">Discord</th>
+                                    <th className="p-4">Role Requested</th>
+                                    <th className="p-4">Experience Summary</th>
+                                    <th className="p-4">Status</th>
+                                    <th className="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5 text-sm text-gray-300">
+                                {staffApps.map(app => (
+                                    <tr key={app.id} className="hover:bg-white/5 transition-colors">
+                                        <td className="p-4">
+                                            <div className="font-bold text-white text-xs">{app.userEmail}</div>
+                                            <div className="text-[10px] text-gray-500 font-mono">UID: {app.userId.substring(0,6)}...</div>
+                                        </td>
+                                        <td className="p-4 font-mono text-xs text-blue-400">{app.discordHandle}</td>
+                                        <td className="p-4">
+                                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-primary/10 text-primary border-primary/20">
+                                                {app.roleApplied.replace('_', ' ')}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="text-xs text-gray-400 max-h-16 overflow-y-auto pr-2">{app.experience}</div>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${app.status === 'accepted' ? 'bg-green-500/10 text-green-500 border-green-500/20' : app.status === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'}`}>
+                                                {app.status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 flex flex-col gap-2 items-end">
+                                            {app.status === 'pending' && (
+                                                <>
+                                                    <Button size="sm" variant="success" onClick={async () => {
+                                                        const userToPromote = allUsers.find(u => u.uid === app.userId);
+                                                        setPendingAction({
+                                                            title: 'Accept Application',
+                                                            message: <p>Are you sure you want to approve this application? <br/><br/><b>Note:</b> You still need to manually grant them the {app.roleApplied} role in the 'Manage Users' tab.</p>,
+                                                            confirmLabel: 'Acknowledge & Mark Accepted',
+                                                            onConfirm: async () => {
+                                                                await updateDoc(doc(db, 'staff_applications', app.id), { status: 'accepted' });
+                                                                toast.success('Application accepted!');
+                                                            }
+                                                        });
+                                                    }}>Accept</Button>
+                                                    <Button size="sm" variant="danger" onClick={async () => {
+                                                        setPendingAction({
+                                                            title: 'Reject Application',
+                                                            message: 'Reject this staff application?',
+                                                            confirmLabel: 'Reject',
+                                                            isDangerous: true,
+                                                            onConfirm: async () => {
+                                                                await updateDoc(doc(db, 'staff_applications', app.id), { status: 'rejected' });
+                                                                toast.success('Application rejected.');
+                                                            }
+                                                        });
+                                                    }}>Reject</Button>
+                                                </>
+                                            )}
+                                            {app.status !== 'pending' && (
+                                                <Button size="sm" variant="danger" onClick={async () => {
+                                                    setPendingAction({
+                                                        title: 'Delete Record',
+                                                        message: 'Permenantly delete this application record?',
+                                                        confirmLabel: 'Delete',
+                                                        isDangerous: true,
+                                                        onConfirm: async () => {
+                                                            await deleteDoc(doc(db, 'staff_applications', app.id));
+                                                        }
+                                                    });
+                                                }}>Delete</Button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {staffApps.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} className="p-12 text-center text-gray-500 font-mono border-t border-white/5">
+                                            <ShieldCheck size={48} className="mx-auto mb-4 opacity-20" />
+                                            NO APPLICATIONS CURRENTLY IN QUEUE.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
             <ConfirmationModal
                 isOpen={!!roleChangeData}
                 onClose={() => setRoleChangeData(null)}

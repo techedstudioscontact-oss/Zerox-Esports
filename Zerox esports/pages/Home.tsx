@@ -233,12 +233,6 @@ export const Home: React.FC<HomeProps> = ({ user, content, searchQuery }) => {
             ))}
           </div>
         </section>
-      )}h3 className="text-white font-black text-sm uppercase tracking-wide leading-tight">{game.name}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
       )}
 
 
