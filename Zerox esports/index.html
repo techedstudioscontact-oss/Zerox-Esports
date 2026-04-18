@@ -12,68 +12,15 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Inter:wght@300;400;600&display=swap"
     rel="stylesheet">
-  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="icon" type="image/png" href="./logo.png" />
   <!-- Preconnect for Video Providers -->
   <link rel="preconnect" href="https://drive.google.com">
   <link rel="preconnect" href="https://www.youtube.com">
   <link rel="dns-prefetch" href="https://drive.google.com">
 
-
-
-
   <!-- Uropay Production SDK -->
   <script src="https://cdn.uropay.me/uropay-embed.min.js"></script>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            background: '#0a0a0c', // Darker, almost black for gaming vibe
-            surface: '#121216',
-            surfaceHighlight: '#1f1f24',
-            primary: '#ff3b30', // Vibrant gaming red
-            secondary: '#00d2ff', // Electric cyan/blue
-            accent: '#ff9500', // Energetic orange
-            textMain: '#ffffff',
-            textMuted: '#9ca3af',
-            glass: 'rgba(255, 255, 255, 0.05)',
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Rajdhani', 'sans-serif'],
-            cinematic: ['Cinzel', 'serif'],
-          },
-          animation: {
-            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 6s ease-in-out infinite',
-            'scroll-up': 'scrollUp 40s linear infinite',
-            'scroll-down': 'scrollDown 45s linear infinite',
-            'fade-in': 'fadeIn 0.5s ease-out forwards',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-10px)' },
-            },
-            scrollUp: {
-              '0%': { transform: 'translateY(0)' },
-              '100%': { transform: 'translateY(-50%)' },
-            },
-            scrollDown: {
-              '0%': { transform: 'translateY(-50%)' },
-              '100%': { transform: 'translateY(0)' },
-            },
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            }
-          }
-        },
-      },
-    }
-  </script>
   <style>
     body {
       background-color: #0a0a0c;
@@ -128,12 +75,11 @@
   }
 }
 </script>
-  <link rel="stylesheet" href="/index.css">
 </head>
 
 <body>
   <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+  <script type="module" src="./index.tsx"></script>
 </body>
 
 </html>
