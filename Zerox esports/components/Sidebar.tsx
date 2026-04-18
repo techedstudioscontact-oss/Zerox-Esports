@@ -191,12 +191,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
 
                     {/* Support Chat for logged-in users */}
                     {user && (
-                        <NavItem
-                            icon={<MessageCircle size={20} />}
-                            label="Live Support Chat"
-                            onClick={() => { setShowSupportChat(true); onClose(); }}
-                            highlight
-                        />
+                        <>
+                            <NavItem
+                                icon={<MessageCircle size={20} />}
+                                label="Live Support Chat"
+                                onClick={() => { setShowSupportChat(true); onClose(); }}
+                                highlight
+                            />
+                            <NavItem
+                                icon={<Users size={20} />}
+                                label="Apply for Staff"
+                                onClick={() => {
+                                    window.open('https://docs.google.com/forms', '_blank');
+                                    onClose();
+                                }}
+                                className="text-purple-400 group-hover:text-purple-300"
+                            />
+                        </>
                     )}
                 </div>
 

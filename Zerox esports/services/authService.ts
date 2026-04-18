@@ -33,8 +33,8 @@ export const isAdminEmail = (email: string) => {
   return e.endsWith('@zeroxesports.com') || e === 'ope@zeroxesports.com' || e === 'open@zeroxesports.com';
 };
 
-// In a real production app, never hardcode secrets. This should be validated via Cloud Functions.
-export const MASTER_SECRET = 'ZEROX_MASTER_2026';
+// Master Secret from env
+export const MASTER_SECRET = import.meta.env.VITE_MASTER_SECRET;
 
 const mapFirebaseUserToAppUser = async (fbUser: FirebaseUser): Promise<User> => {
   const userDocRef = doc(db, 'users', fbUser.uid);

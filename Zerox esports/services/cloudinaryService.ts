@@ -1,5 +1,5 @@
-const CLOUDINARY_CLOUD_NAME = 'djakhzqas';
-const CLOUDINARY_UPLOAD_PRESET = 'ml_default';
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 // ── Upload file and return both URL and public_id ─────────────────
 export const uploadToCloudinary = async (file: File | Blob): Promise<string> => {

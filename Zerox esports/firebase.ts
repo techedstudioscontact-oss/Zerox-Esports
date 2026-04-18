@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA0-ufAd-42SnKDssCa1gyNa1dtdijMIio",
-  authDomain: "zerox-esports.firebaseapp.com",
-  projectId: "zerox-esports",
-  storageBucket: "zerox-esports.firebasestorage.app",
-  messagingSenderId: "1030846411815",
-  appId: "1:1030846411815:web:e08f4d669893283c3f8a02",
-  measurementId: "G-FKPJPSE6SW"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);

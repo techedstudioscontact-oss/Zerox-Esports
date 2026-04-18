@@ -4,8 +4,8 @@ import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'f
 import { onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'sonner';
 
-// Hardcoded OneSignal App ID
-const ONESIGNAL_APP_ID = "c029ccad-5c35-4bb6-9557-4cd4eabcfa05";
+// OneSignal App ID from env
+const ONESIGNAL_APP_ID = import.meta.env.VITE_ONESIGNAL_APP_ID;
 
 export const initNotifications = async () => {
     try {
