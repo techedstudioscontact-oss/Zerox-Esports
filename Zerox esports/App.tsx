@@ -14,6 +14,7 @@ import { initNotifications } from './services/notificationService';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BiometricLock } from './components/BiometricLock';
 import { AppUpdateBlocker } from './components/AppUpdateBlocker';
+import GuardModule from './components/GuardModule';
 // Lazy Load Pages
 const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
 const Login = lazy(() => import('./pages/Login').then(module => ({ default: module.Login })));
@@ -337,9 +338,10 @@ const App: React.FC = () => {
   );
 
   return (
-    <AppUpdateBlocker>
-      <Router>
-        <div className="min-h-screen bg-[#050505] text-textMain relative font-sans selection:bg-primary selection:text-white">
+    <GuardModule>
+      <AppUpdateBlocker>
+        <Router>
+          <div className="min-h-screen bg-[#050505] text-textMain relative font-sans selection:bg-primary selection:text-white">
 
 
           {/* GLOBAL BROADCAST POPUP */}
@@ -486,6 +488,7 @@ const App: React.FC = () => {
         </div>
       </Router>
     </AppUpdateBlocker>
+    </GuardModule>
   );
 };
 
