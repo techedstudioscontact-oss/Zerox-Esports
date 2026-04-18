@@ -104,156 +104,108 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({ content, isUnloc
 
   return (
     <>
-      {/* ── Card shell ──────────────────────────────────────────── */}
       <div
-        className="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-white shadow-lg"
+        className="relative w-full rounded-xl overflow-hidden border border-white/5 bg-[#121215] shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(255,50,50,0.15)] hover:border-red-500/30 transition-all duration-300 transform hover:-translate-y-1 group"
         style={{ fontFamily: "'Inter', sans-serif" }}
       >
-        {/* Status tab at top */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-0">
-          {isOngoing && (
-            <span className="text-xs font-bold text-green-600 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-              LIVE
-            </span>
+        {/* ── Banner Image ──────────────────────────────────────── */}
+        <div className="relative h-36 w-full bg-black overflow-hidden">
+          {content.thumbnailUrl ? (
+            <img src={content.thumbnailUrl} alt={content.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-black flex items-center justify-center">
+              <span className="font-black text-white/10 text-6xl italic transform -skew-x-12">{content.title?.[0]}</span>
+            </div>
           )}
-          {isUpcoming && (
-            <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
-              ↑ UPCOMING
-            </span>
-          )}
-          {isDone && (
-            <span className="text-xs font-bold text-orange-500 flex items-center gap-1">
-              ○ RESULTS
-            </span>
-          )}
+          
+          {/* Status Badge */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            {isOngoing && <span className="px-2 py-1 bg-green-500/90 text-white text-[10px] font-black rounded-sm tracking-wider shadow-[0_0_10px_rgba(34,197,94,0.5)] flex items-center gap-1.5"><span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />LIVE</span>}
+            {isUpcoming && <span className="px-2 py-1 bg-blue-600/90 text-white text-[10px] font-black uppercase rounded-sm border border-blue-400/50 shadow-lg">Upcoming</span>}
+            {isDone && <span className="px-2 py-1 bg-orange-600/90 text-white text-[10px] font-black uppercase rounded-sm shadow-lg">Results</span>}
+          </div>
+
+          {/* Floating Tags Overlay */}
+          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
+            {content.teamSize && <span className="px-2 py-1 rounded text-[9px] font-black tracking-widest uppercase text-white bg-black/60 border border-white/10 backdrop-blur-md">{content.teamSize}</span>}
+            {content.map && <span className="px-2 py-1 rounded text-[9px] font-black tracking-widest uppercase text-white bg-black/60 border border-white/10 backdrop-blur-md">{content.map}</span>}
+          </div>
         </div>
 
-        {/* ── Tag row ─────────────────────────────────────────────── */}
-        <div className="flex flex-wrap gap-1.5 px-4 pt-2 pb-1">
-          {content.teamSize && (
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#4A9EFF]">
-              {content.teamSize}
-            </span>
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <div className="px-4 pt-3 pb-2 z-10 relative bg-gradient-to-b from-[#121215] to-transparent">
+          {countdown && countdown !== 'Started' && (
+             <p className="text-[10px] text-orange-500 font-bold mb-1 tracking-widest uppercase flex items-center gap-1">
+               <span className="w-1 h-1 bg-orange-500 rounded-full" /> Starts in: {countdown}
+             </p>
           )}
-          {content.map && (
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#4A9EFF]">
-              {content.map}
-            </span>
-          )}
-          {countdown && countdown !== 'Started' && countdown.split('  ').map((part, i) => (
-            <span key={i} className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#F5A623]">
-              {part.trim()}
-            </span>
-          ))}
           {countdown === 'Started' && (
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-green-500">
-              Live Now
-            </span>
+             <p className="text-[10px] text-green-500 font-bold mb-1 tracking-widest uppercase flex items-center gap-1">
+               <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" /> Matches Underway
+             </p>
           )}
-        </div>
-
-        {/* ── Tournament Name ─────────────────────────────────────── */}
-        <div className="px-4 pt-1 pb-2">
-          <h3 className="text-[15px] font-black text-gray-900 leading-snug line-clamp-2">
+          <h3 className="text-lg font-black text-white leading-tight line-clamp-1 truncate transition-colors group-hover:text-primary">
             {content.title}
           </h3>
         </div>
 
-        {/* ── Meta row: Date | Prize Pool | Per Kill ─────────────── */}
-        <div className="px-4 pb-3 flex items-start gap-4 text-[11px]">
-          {formattedDate && (
-            <div className="flex flex-col">
-              <span className="text-gray-400 font-medium">{formattedDate.split('|')[0]?.trim()}</span>
-              <span className="text-gray-500 font-medium">| {formattedDate.split('|')[1]?.trim()}</span>
-            </div>
-          )}
-          <div className="flex flex-col items-start ml-auto gap-0.5">
-            <span className="text-gray-400 font-medium">Price Pool</span>
-            <span className="text-gray-900 font-black text-sm">
-              {content.prizePool ? `₹${content.prizePool}` : '₹0'}
-            </span>
+        {/* ── Meta row: Prize | Per Kill | Date ─────────────────── */}
+        <div className="px-4 py-3 bg-white/[0.02] border-y border-white/5 flex items-center justify-between">
+           <div className="flex flex-col">
+             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Prize Pool</span>
+             <span className="text-white font-black text-sm">{content.prizePool ? `₹${content.prizePool}` : '₹0'}</span>
+           </div>
+           <div className="h-8 w-px bg-white/10" />
+           <div className="flex flex-col items-center">
+             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Per Kill</span>
+             <span className="text-green-500 font-black text-sm">₹0</span>
+           </div>
+           <div className="h-8 w-px bg-white/10" />
+           <div className="flex flex-col text-right">
+             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-0.5">Date</span>
+             <span className="text-gray-300 font-bold text-xs">{formattedDate?.split('|')[0]?.trim() || 'TBA'}</span>
+           </div>
+        </div>
+
+        {/* ── Players & Slot Progress ─────────────────────────────── */}
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between mb-2">
+             <div className="flex items-center -space-x-1.5">
+               {slotsUsed === 0 ? (
+                 <span className="text-[10px] font-medium text-gray-500 flex items-center gap-1"><Users size={12} className="text-gray-600"/> Be the first!</span>
+               ) : (
+                 <>
+                   {visibleRegs.map((reg, i) => (
+                     <div key={reg.id} title={reg.userEmail} className={`w-6 h-6 rounded-full border border-[#121215] flex items-center justify-center text-[9px] font-black text-white ${getAvatarColor(reg.userEmail)} z-${10 - i}`}>
+                       {getInitials(reg.userEmail)}
+                     </div>
+                   ))}
+                   {overflowCount > 0 && (
+                     <div className="w-6 h-6 rounded-full border border-[#121215] bg-gray-800 flex items-center justify-center text-[8px] font-black text-gray-300">
+                       +{overflowCount}
+                     </div>
+                   )}
+                 </>
+               )}
+             </div>
+             <div className="text-right">
+               <span className="text-[11px] font-black text-white leading-none block">{slotsUsed}/{maxSlots} Joined</span>
+               <span className="text-[9px] text-orange-500 font-bold uppercase tracking-wide">{spotsLeft} Spots Left</span>
+             </div>
           </div>
-          <div className="flex flex-col items-start gap-0.5">
-            <span className="text-green-600 font-bold text-[11px]">Per Kill ₹0</span>
+          <div className="w-full h-1.5 bg-black/60 rounded-full overflow-hidden border border-white/5">
+            <div className="h-full bg-gradient-to-r from-orange-600 to-primary rounded-full shadow-[0_0_10px_rgba(235,27,36,0.5)]" style={{ width: `${slotPct}%` }} />
           </div>
         </div>
 
-        {/* ── Live Players Joined ───────────────────────────────────── */}
-        <div className="px-4 pb-2">
-          <div className="flex items-center gap-2">
-            {/* Stacked avatars */}
-            {slotsUsed > 0 && (
-              <div className="flex items-center -space-x-2">
-                {visibleRegs.map((reg, i) => (
-                  <div
-                    key={reg.id}
-                    title={reg.userEmail}
-                    className={`w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-black text-white ${getAvatarColor(reg.userEmail)} z-${10 - i}`}
-                  >
-                    {getInitials(reg.userEmail)}
-                  </div>
-                ))}
-                {overflowCount > 0 && (
-                  <div className="w-6 h-6 rounded-full border-2 border-white bg-gray-400 flex items-center justify-center text-[9px] font-black text-white">
-                    +{overflowCount}
-                  </div>
-                )}
-              </div>
-            )}
-            <span className="text-[10px] font-bold text-gray-500 flex items-center gap-1">
-              <Users size={10} />
-              {slotsUsed === 0
-                ? 'Be the first to join!'
-                : `${slotsUsed} player${slotsUsed > 1 ? 's' : ''} joined`}
-            </span>
-          </div>
-        </div>
-
-        {/* ── Slot progress bar ────────────────────────────────────── */}
-        <div className="px-4 pb-3">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] font-bold text-orange-500">
-              ({slotsUsed}/{maxSlots})&nbsp;Only {spotsLeft} Spots Left
-            </span>
-            <span
-              onClick={handleCardClick}
-              className="px-3 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold cursor-pointer hover:bg-green-600 transition-colors"
-            >
-              {content.entryFee && content.entryFee > 0 ? `₹${content.entryFee} Join` : 'Free Join'}
-            </span>
-          </div>
-          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-orange-400 rounded-full transition-all duration-500"
-              style={{ width: `${slotPct}%` }}
-            />
-          </div>
-        </div>
-
-        {/* ── Action buttons ───────────────────────────────────────── */}
-        <div className="px-4 pb-4 flex gap-2">
-          {isDone ? (
-            <button
-              onClick={handleCardClick}
-              className="flex-1 py-2 rounded-lg bg-[#E53935] text-white text-xs font-bold tracking-wide hover:bg-red-700 transition-colors"
-            >
-              Results
-            </button>
-          ) : (
-            <button
-              onClick={handleCardClick}
-              className="flex-1 py-2 rounded-lg bg-[#E53935] text-white text-xs font-bold tracking-wide hover:bg-red-700 transition-colors"
-            >
-              {content.entryFee && content.entryFee > 0 ? `Pay ₹${content.entryFee} & Join` : 'Free Join'}
-            </button>
-          )}
-          <button
-            onClick={handleCardClick}
-            className="flex-1 py-2 rounded-lg bg-[#1C2340] text-white text-xs font-bold tracking-wide hover:bg-[#2a3360] transition-colors"
-          >
-            Id &amp; Password
-          </button>
+        {/* ── Actions ──────────────────────────────────────────────── */}
+        <div className="px-4 pb-4 pt-1 flex gap-2">
+           <button onClick={handleCardClick} className="flex-[3] py-2.5 rounded bg-gradient-to-r from-primary to-orange-600 text-white text-[11px] font-black tracking-widest uppercase hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(235,27,36,0.3)]">
+             {isDone ? 'Results' : content.entryFee ? `Pay ₹${content.entryFee} & Join` : 'Free Join'}
+           </button>
+           <button onClick={handleCardClick} className="flex-[2] py-2.5 rounded bg-white/5 border border-white/10 text-gray-300 text-[11px] font-black tracking-widest uppercase hover:bg-white/10 hover:text-white transition-colors">
+             Details
+           </button>
         </div>
       </div>
 

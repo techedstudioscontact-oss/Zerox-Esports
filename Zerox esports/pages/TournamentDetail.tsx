@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Tournament, User, AdCampaign } from '../types';
 import { Button } from '../components/Button';
-import { Play, Share2, Info, ShieldAlert, Plus, Check, List, Download, Lock } from 'lucide-react';
+import { Play, Share2, Info, ShieldAlert, Plus, Check, List, Download, Lock, Users } from 'lucide-react';
 import { Share } from '@capacitor/share';
 import { Browser } from '@capacitor/browser';
 import { App as CapApp } from '@capacitor/app';
@@ -289,30 +289,32 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
             )}
 
             {/* Hero Section */}
-            <div className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
-                <div className="absolute inset-0">
+            <div className="relative h-[55vh] md:h-[65vh] w-full bg-[#0a0a0c]">
+                <div className="absolute inset-0 overflow-hidden">
                     <img
                         src={content.coverUrl || content.thumbnailUrl}
-                        className="w-full h-full object-cover opacity-40"
+                        className="w-full h-full object-cover opacity-60 scale-105"
+                        style={{ filter: 'brightness(0.7) contrast(1.1)' }}
                         alt="cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0a0a0c]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0c]/90 via-[#0a0a0c]/40 to-transparent" />
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
                 </div>
 
-                <div className="absolute bottom-0 left-0 w-full p-6 lg:p-12 z-10 pb-20">
+                <div className="absolute bottom-0 left-0 w-full p-6 lg:p-12 z-10 pb-32 md:pb-40 lg:pb-48">
                     <div className="container mx-auto">
                         <div className="flex gap-2 mb-4">
                             {(content.tags || []).map(tag => (
-                                <span key={tag} className="px-3 py-1 bg-primary/20 backdrop-blur-md rounded-full text-[10px] font-bold text-primary border border-primary/30 uppercase tracking-widest shadow-[0_0_10px_rgba(235,27,36,0.2)]">
+                                <span key={tag} className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded text-[10px] font-black text-primary border border-primary/30 uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(235,27,36,0.2)]">
                                     {tag}
                                 </span>
                             ))}
                         </div>
-                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white mb-2 tracking-tight leading-tight drop-shadow-2xl max-w-4xl">
+                        <h1 className="text-5xl md:text-6xl lg:text-8xl font-black text-white mb-4 tracking-tighter leading-none drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] max-w-5xl uppercase" style={{ textShadow: '0 0 40px rgba(235,27,36,0.3)' }}>
                             {content.title}
                         </h1>
-                        <p className="text-gray-300 text-sm md:text-base max-w-2xl line-clamp-2 mt-4 font-medium">
+                        <p className="text-gray-300 text-sm md:text-lg max-w-3xl line-clamp-2 mt-4 font-medium leading-relaxed drop-shadow-md">
                             {content.description}
                         </p>
                     </div>
@@ -320,13 +322,13 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
             </div>
 
             {/* Main Content Area */}
-            <div className="container mx-auto px-4 md:px-6 relative z-20 -mt-12">
+            <div className="container mx-auto px-4 md:px-6 relative z-20 -mt-24 md:-mt-32">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Left Column (Details & Registration) */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-8">
 
-                        {/* Action Bar */}
-                        <div className="bg-surfaceHighlight border border-white/10 p-2 rounded-2xl backdrop-blur-xl shadow-2xl flex flex-wrap gap-2 items-center">
+                        {/* Ultra-Glass Action Bar */}
+                        <div className="bg-black/40 backdrop-blur-3xl border border-white/[0.08] p-2 md:p-3 rounded-[32px] shadow-[0_30px_60px_rgba(0,0,0,0.9)] flex flex-wrap gap-2 items-center relative z-30">
                             {hasRegistered ? (
                                 <Button
                                     variant="secondary"
@@ -345,9 +347,9 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                                             setIsSubmittingReg(false);
                                         }
                                     }}
-                                    className="flex-1 min-w-[200px] bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/30 font-bold tracking-widest uppercase transition-all"
+                                    className="flex-[2] min-w-[200px] bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-black tracking-widest uppercase transition-all rounded-[24px] py-4 shadow-inner"
                                 >
-                                    {isUnregisterLocked ? "Locked (Starts Soon)" : "Cancel Registration"}
+                                    {isUnregisterLocked ? "Locked (Starts Soon)" : "Cancel Ticket"}
                                 </Button>
                             ) : (
                                 <Button
@@ -378,7 +380,7 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                                             setIsSubmittingReg(false);
                                         }
                                     }}
-                                    className="flex-1 min-w-[200px] bg-primary text-white hover:bg-primary-hover border-none font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(235,27,36,0.4)] transition-all"
+                                    className="flex-[2] min-w-[200px] bg-gradient-to-r from-primary to-[#ff4e00] hover:scale-[1.02] text-white border-none font-black tracking-widest uppercase shadow-[0_0_40px_rgba(235,27,36,0.5)] transition-all duration-300 rounded-[24px] py-4"
                                 >
                                     <Check className="mr-2 h-5 w-5" />
                                     {content.entryFee && content.entryFee > 0 ? `Register (${content.entryFee} Coins)` : `Register (Free)`}
@@ -390,9 +392,9 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                                     variant="secondary"
                                     size="lg"
                                     onClick={() => handlePlay()}
-                                    className="bg-white/5 text-white hover:bg-white/10 border border-white/10 flex-1 md:flex-none"
+                                    className="bg-white/[0.05] text-white hover:bg-white/[0.1] border border-white/5 flex-1 md:flex-none rounded-[24px] py-4 font-black tracking-widest uppercase shadow-inner"
                                 >
-                                    <Play className="mr-2 h-4 w-4 fill-white" /> Watch
+                                    <Play className="mr-2 h-5 w-5 fill-white" /> Watch
                                 </Button>
                             )}
 
@@ -402,57 +404,35 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                                     size="lg"
                                     onClick={handleToggleFavorite}
                                     isLoading={updatingList}
-                                    className={`flex-1 md:flex-none ${isFavorite ? "border-green-500/50 text-green-400 bg-green-500/10" : "bg-white/5 border-white/10 text-gray-300 hover:text-white"}`}
+                                    className={`flex-[0.5] md:flex-none rounded-[24px] py-4 font-black tracking-widest uppercase transition-all ${isFavorite ? "border-green-500/30 text-green-400 bg-green-500/10 shadow-[0_0_20px_rgba(34,197,94,0.2)]" : "bg-white/[0.05] border-white/5 text-gray-400 hover:text-white"}`}
                                 >
-                                    {isFavorite ? <Check className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-                                    {isFavorite ? 'Saved' : 'Save'}
+                                    {isFavorite ? <Check className="mr-2 h-5 w-5" /> : <Plus className="mr-2 h-5 w-5" />}
                                 </Button>
                             )}
 
-                            {isUnlocked && (
-                                <Button
-                                    variant="secondary"
-                                    size="lg"
-                                    onClick={async () => {
-                                        const url = content.downloadUrl ||
-                                            (content.matches?.length ? content.matches[currentEpIndex || 0].videoUrl : content.videoUrl);
-
-                                        if (url) {
-                                            toast.info("Opening Link...");
-                                            await Browser.open({ url: url });
-                                        } else {
-                                            toast.error("No link available");
-                                        }
-                                    }}
-                                    className="bg-white/5 text-gray-300 hover:text-white border border-white/10 flex-1 md:flex-none"
-                                >
-                                    <Download className="mr-2 h-4 w-4" /> Link
-                                </Button>
-                            )}
-
-                            <Button variant="glass" size="lg" onClick={handleShare} className="flex-1 md:flex-none">
-                                <Share2 className="mr-2 h-4 w-4" /> Share
+                            <Button variant="glass" size="lg" onClick={handleShare} className="flex-[0.5] md:flex-none bg-white/[0.05] border border-white/5 hover:bg-white/[0.1] rounded-[24px] py-4 font-black text-gray-300 hover:text-white tracking-widest uppercase shadow-inner">
+                                <Share2 className="h-5 w-5" />
                             </Button>
                         </div>
 
-                        {/* Esports Quick Stats */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                            <div className="bg-surfaceHighlight border border-white/5 p-4 rounded-2xl flex flex-col justify-center">
-                                <span className="text-gray-500 uppercase text-[10px] font-bold tracking-widest mb-1 flex items-center gap-1"><Info size={12} /> Map / Arena</span>
-                                <span className="text-white font-black text-lg">{content.map || 'Any'}</span>
+                        {/* Translucent Quick Stats */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+                            <div className="bg-white/[0.08] backdrop-blur-2xl border border-white/[0.1] p-6 rounded-[32px] flex flex-col justify-center relative overflow-hidden group transition-all shadow-lg hover:bg-white/[0.12]">
+                                <span className="text-gray-400 uppercase text-[9px] font-black tracking-[0.2em] mb-2 flex items-center gap-2"><Info size={12} className="text-[#4A9EFF]" /> Map</span>
+                                <span className="text-white font-black text-2xl truncate drop-shadow-md">{content.map || 'Any'}</span>
                             </div>
-                            <div className="bg-surfaceHighlight border border-white/5 p-4 rounded-2xl flex flex-col justify-center">
-                                <span className="text-gray-500 uppercase text-[10px] font-bold tracking-widest mb-1 flex items-center gap-1"><Info size={12} /> Team Format</span>
-                                <span className="text-white font-black text-lg">{content.teamSize || 'Any'}</span>
+                            <div className="bg-white/[0.08] backdrop-blur-2xl border border-white/[0.1] p-6 rounded-[32px] flex flex-col justify-center relative overflow-hidden group transition-all shadow-lg hover:bg-white/[0.12]">
+                                <span className="text-gray-400 uppercase text-[9px] font-black tracking-[0.2em] mb-2 flex items-center gap-2"><Users size={12} className="text-purple-500" /> Format</span>
+                                <span className="text-white font-black text-2xl truncate drop-shadow-md">{content.teamSize || 'Any'}</span>
                             </div>
-                            <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-2xl flex flex-col justify-center relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-full blur-2xl"></div>
-                                <span className="text-yellow-600 uppercase text-[10px] font-bold tracking-widest mb-1 flex items-center gap-1"><Info size={12} /> Prize Pool</span>
-                                <span className="text-yellow-500 font-black text-lg drop-shadow-md">{content.prizePool ? `₹${content.prizePool}` : 'TBA'}</span>
+                            <div className="bg-gradient-to-br from-[#1a0f05]/90 to-[#120805]/90 backdrop-blur-2xl border border-orange-500/40 p-6 rounded-[32px] flex flex-col justify-center relative overflow-hidden group shadow-[0_15px_30px_rgba(249,115,22,0.15)] hover:shadow-[0_15px_40px_rgba(249,115,22,0.3)] transition-all">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/30 rounded-full blur-[40px]"></div>
+                                <span className="text-orange-400 uppercase text-[9px] font-black tracking-[0.2em] mb-2 flex items-center gap-2 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]"> Prize Pool</span>
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 font-black text-3xl drop-shadow-[0_0_10px_rgba(249,115,22,0.4)] tracking-tighter truncate">{content.prizePool ? `₹${content.prizePool}` : 'TBA'}</span>
                             </div>
-                            <div className="bg-surfaceHighlight border border-white/5 p-4 rounded-2xl flex flex-col justify-center">
-                                <span className="text-gray-500 uppercase text-[10px] font-bold tracking-widest mb-1 flex items-center gap-1"><Info size={12} /> Slots</span>
-                                <span className="text-white font-black text-lg">{content.maxSlots ? `${content.maxSlots}` : 'Unlimited'}</span>
+                            <div className="bg-white/[0.08] backdrop-blur-2xl border border-white/[0.1] p-6 rounded-[32px] flex flex-col justify-center relative overflow-hidden group transition-all shadow-lg hover:bg-white/[0.12]">
+                                <span className="text-gray-400 uppercase text-[9px] font-black tracking-[0.2em] mb-2 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]" /> Slots</span>
+                                <span className="text-white font-black text-2xl truncate drop-shadow-md">{content.maxSlots ? `${content.maxSlots}` : 'Unlimited'}</span>
                             </div>
                         </div>
 
@@ -521,41 +501,45 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                             </div>
                         )}
 
-                        {/* Rules & Info */}
-                        <div className="bg-surfaceHighlight border border-white/5 rounded-2xl p-6 lg:p-8 shadow-lg">
-                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white border-b border-white/10 pb-4">
-                                <Info className="h-5 w-5 text-primary" /> Tournament Overview
+                        {/* Fluid Overview Box */}
+                        <div className="bg-white/[0.06] backdrop-blur-3xl border border-white/[0.1] rounded-[40px] p-8 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                            <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/15 rounded-full blur-[80px] pointer-events-none"></div>
+                            
+                            <h3 className="text-2xl md:text-3xl font-black mb-10 flex items-center gap-4 text-white tracking-tighter">
+                                <span className="w-2 h-8 bg-primary block rounded-full shadow-[0_0_15px_rgba(235,27,36,0.8)]"></span>
+                                TOURNAMENT OVERVIEW
                             </h3>
 
-                            <div className="flex flex-wrap items-center gap-4 mb-8 bg-black/40 p-4 rounded-xl border border-white/5">
-                                <div className="text-center px-4 border-r border-white/10">
-                                    <span className="block text-xs uppercase text-gray-500 tracking-widest font-bold mb-1">Start Date</span>
-                                    <span className="text-white font-mono text-sm">{content.startDate || 'TBA'}</span>
+                            <div className="flex flex-wrap items-center gap-0 mb-12 bg-white/[0.02] rounded-[24px] border border-white/[0.05] overflow-hidden shadow-inner">
+                                <div className="text-center p-6 border-r border-white/[0.05] flex-1">
+                                    <span className="block text-[10px] uppercase text-gray-500 tracking-[0.2em] font-black mb-2">Start Date</span>
+                                    <span className="text-white font-mono text-sm md:text-base font-bold tracking-wide">{content.startDate || 'TBA'}</span>
                                 </div>
-                                <div className="text-center px-4 md:border-r border-white/10">
-                                    <span className="block text-xs uppercase text-gray-500 tracking-widest font-bold mb-1">Type</span>
-                                    <span className="text-primary font-bold uppercase text-sm tracking-widest">{content.contentType}</span>
+                                <div className="text-center p-6 border-r border-white/[0.05] flex-1">
+                                    <span className="block text-[10px] uppercase text-gray-500 tracking-[0.2em] font-black mb-2">Type</span>
+                                    <span className="text-primary font-black uppercase text-sm md:text-base tracking-[0.2em] drop-shadow-[0_0_8px_rgba(235,27,36,0.4)]">{content.contentType}</span>
                                 </div>
-                                <div className="text-center px-4 ml-auto">
-                                    <span className="block text-xs uppercase text-gray-500 tracking-widest font-bold mb-1">Status</span>
-                                    <span className="inline-block px-2 py-0.5 bg-green-500/20 text-green-500 rounded text-xs font-bold uppercase tracking-wider">
+                                <div className="text-center p-6 flex-1">
+                                    <span className="block text-[10px] uppercase text-gray-500 tracking-[0.2em] font-black mb-2">Status</span>
+                                    <span className="inline-block px-4 py-1.5 bg-green-500/10 text-green-400 rounded-full font-black uppercase text-[10px] md:text-xs tracking-widest border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
                                         {content.status}
                                     </span>
                                 </div>
                             </div>
 
-                            <p className="text-gray-300 leading-relaxed whitespace-pre-line text-sm md:text-base border-l-2 border-primary/50 pl-6">
+                            <p className="text-gray-300 leading-[1.8] whitespace-pre-line text-sm md:text-base font-medium opacity-90 pl-2">
                                 {content.description || "No specific rules provided by the organizer."}
                             </p>
                         </div>
 
-                        {/* Matches List (For Tournaments/Scrims) */}
+                        {/* Fluid Matches List */}
                         {content.matches && content.matches.length > 0 && (
-                            <div className="bg-surfaceHighlight border border-white/5 rounded-2xl p-6 lg:p-8 shadow-lg">
-                                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
-                                    <List className="text-primary" size={20} /> Matches & VODs
+                            <div className="bg-white/[0.06] backdrop-blur-3xl border border-white/[0.1] rounded-[40px] p-8 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                                <h3 className="text-2xl md:text-3xl font-black text-white mb-8 flex items-center gap-4 tracking-tighter">
+                                    <span className="w-2 h-8 bg-primary block rounded-full shadow-[0_0_15px_rgba(235,27,36,0.8)]"></span>
+                                    MATCH VODS
                                 </h3>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {content.matches.map((ep, idx) => (
                                         <div
                                             key={ep.id}
@@ -564,20 +548,20 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                                                     handlePlay(idx);
                                                 }
                                             }}
-                                            className={`p-4 rounded-xl flex items-center gap-4 transition-all group cursor-pointer
+                                            className={`p-5 rounded-[24px] flex items-center gap-6 transition-all duration-300 group cursor-pointer
                                                 ${isUnlocked
-                                                    ? 'bg-black/40 hover:bg-primary/10 border border-white/5 hover:border-primary/50'
-                                                    : 'bg-black/40 border border-white/5 opacity-50 cursor-not-allowed'}`}
+                                                    ? 'bg-white/[0.02] hover:bg-primary/[0.05] border border-white/[0.05] hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(235,27,36,0.15)] hover:-translate-y-1'
+                                                    : 'bg-black/20 border border-white/[0.02] opacity-50 cursor-not-allowed'}`}
                                         >
-                                            <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center font-black text-lg text-gray-400 group-hover:text-primary transition-colors shadow-inner">
+                                            <div className="w-16 h-16 rounded-[18px] bg-white/[0.03] border border-white/5 flex items-center justify-center font-black text-2xl text-gray-400 group-hover:text-primary transition-all group-hover:scale-105 shadow-inner">
                                                 {ep.number}
                                             </div>
                                             <div className="flex-1">
-                                                <h5 className="font-bold text-gray-200 group-hover:text-white transition-colors text-lg">{ep.title}</h5>
-                                                <div className="text-xs text-gray-500 font-mono tracking-widest uppercase mt-1">Match {ep.number}</div>
+                                                <h5 className="font-black text-white transition-colors text-lg md:text-xl tracking-tight uppercase line-clamp-1">{ep.title}</h5>
+                                                <div className="text-[10px] md:text-xs text-gray-500 font-bold tracking-[0.2em] uppercase mt-1">Match {ep.number}</div>
                                             </div>
-                                            <div className="text-gray-500 group-hover:text-primary bg-white/5 p-3 rounded-full group-hover:scale-110 transition-transform">
-                                                {isUnlocked ? <Play size={20} className="fill-current" /> : <ShieldAlert size={16} />}
+                                            <div className="text-gray-400 group-hover:text-white bg-white/[0.03] group-hover:bg-primary p-4 rounded-full group-hover:scale-110 transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(235,27,36,0.5)]">
+                                                {isUnlocked ? <Play size={24} className="fill-current" /> : <ShieldAlert size={24} />}
                                             </div>
                                         </div>
                                     ))}
@@ -586,26 +570,27 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({ user, conten
                         )}
 
                         {/* Comments Section */}
-                        <div className="bg-surfaceHighlight border border-white/5 rounded-2xl overflow-hidden shadow-lg">
+                        <div className="bg-white/[0.02] backdrop-blur-3xl border border-white/[0.05] rounded-[40px] overflow-hidden shadow-2xl p-4 md:p-8">
                             <CommentSection contentId={content.id} user={user} />
                         </div>
                     </div>
 
                     {/* Sidebar (Recommendations) */}
                     <div className="hidden lg:block lg:col-span-1 space-y-6">
-                        <div className="rounded-2xl bg-surfaceHighlight p-6 border border-white/5 sticky top-24 shadow-lg">
-                            <h4 className="font-bold text-white tracking-widest uppercase text-sm mb-6 flex items-center gap-2 border-b border-white/10 pb-4">
-                                <span className="w-1.5 h-4 bg-primary rounded-full"></span> Similar Events
+                        <div className="bg-white/[0.06] backdrop-blur-3xl border border-white/[0.1] p-8 rounded-[40px] sticky top-28 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[50px] pointer-events-none"></div>
+                            <h4 className="font-black text-white tracking-[0.2em] uppercase text-sm mb-8 flex items-center gap-3">
+                                <span className="w-2 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(235,27,36,0.8)]"></span> SIMILAR EVENTS
                             </h4>
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {recommendations.map(rec => (
                                     <div key={rec.id} className="flex gap-4 group cursor-pointer" onClick={() => navigate(`/watch/${rec.id}`)}>
-                                        <div className="w-[100px] h-[75px] shrink-0 overflow-hidden rounded-xl border border-white/10">
-                                            <img src={rec.thumbnailUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        <div className="w-[110px] h-[80px] shrink-0 overflow-hidden rounded-[20px] border border-white/[0.05] shadow-md group-hover:shadow-[0_10px_20px_rgba(235,27,36,0.2)] transition-all">
+                                            <img src={rec.thumbnailUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         </div>
                                         <div className="flex flex-col justify-center">
-                                            <h5 className="font-bold text-sm text-gray-300 group-hover:text-white transition-colors line-clamp-2 leading-tight">{rec.title}</h5>
-                                            <span className="text-[10px] text-primary mt-1 font-bold tracking-widest uppercase">{rec.tags[0]}</span>
+                                            <h5 className="font-black text-sm text-gray-300 group-hover:text-white transition-colors line-clamp-2 leading-tight uppercase tracking-tight">{rec.title}</h5>
+                                            <span className="text-[10px] text-primary mt-2 font-black tracking-[0.2em] uppercase drop-shadow-[0_0_5px_rgba(235,27,36,0.3)]">{rec.tags[0]}</span>
                                         </div>
                                     </div>
                                 ))}
