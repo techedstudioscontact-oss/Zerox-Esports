@@ -150,10 +150,10 @@ export const SupportInbox: React.FC<SupportInboxProps> = ({ admin }) => {
                         >
                             <div className="flex items-center gap-2 mb-1">
                                 <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
-                                    {chat.userEmail[0].toUpperCase()}
+                                    {chat.userEmail?.[0]?.toUpperCase() || 'U'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-white truncate">{chat.userEmail.split('@')[0]}</p>
+                                    <p className="text-xs font-semibold text-white truncate">{(chat.userEmail || 'Unknown').split('@')[0]}</p>
                                     <div className="flex items-center gap-1">
                                         {chat.status === 'resolved'
                                             ? <CheckCircle size={10} className="text-green-500" />
@@ -180,10 +180,10 @@ export const SupportInbox: React.FC<SupportInboxProps> = ({ admin }) => {
                     {/* Header */}
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-black/20 shrink-0">
                         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                            {activeChat.userEmail[0].toUpperCase()}
+                            {activeChat.userEmail?.[0]?.toUpperCase() || 'U'}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-white truncate">{activeChat.userEmail}</p>
+                            <p className="text-sm font-bold text-white truncate">{activeChat.userEmail || 'Unknown User'}</p>
                             <p className="text-[10px] text-gray-500 capitalize">{activeChat.status}</p>
                         </div>
                         {activeChat.status !== 'resolved' ? (
