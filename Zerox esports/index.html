@@ -22,20 +22,18 @@
   <script src="https://cdn.uropay.me/uropay-embed.min.js"></script>
 
   <style>
-    body {
+    html, body {
+      height: 100%;
       background-color: #0a0a0c;
       color: #ffffff;
-    }
-
-    /* iOS/Android: prevent background zoom-on-scroll bug */
-    html {
-      height: 100%;
-      /* Disable momentum scrolling glitch on iOS Safari */
-      -webkit-overflow-scrolling: touch;
+      /* CRITICAL: Disables iOS rubber-band bounce + Android overscroll glow.
+         Without this, lifting finger causes viewport resize → fixed bg zooms. */
+      overscroll-behavior: none;
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: auto;
     }
 
     #root {
-      /* Isolate the stacking context so fixed elements stay truly fixed */
       isolation: isolate;
     }
 
