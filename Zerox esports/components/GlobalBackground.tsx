@@ -29,7 +29,13 @@ function initSakura(canvas: HTMLCanvasElement) {
     // Fewer petals on mobile to keep GPU free, but still show them
     const PETAL_COUNT = isMobile ? 35 : 70;
 
-    const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+    // KEY FIX: use screen.height to match the --app-height CSS variable.
+    // If we used window.innerHeight, it shrinks/grows as the URL bar slides,
+    // causing the canvas to resize every scroll → petals reset → rewind effect.
+    const resize = () => {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = isMobile ? window.screen.height : window.innerHeight;
+    };
 
     const spawn = (scattered = false) => ({
         x: Math.random() * W, y: scattered ? Math.random() * H : -20,
@@ -65,10 +71,27 @@ function initSakura(canvas: HTMLCanvasElement) {
     };
 
     resize();
-    window.addEventListener('resize', resize);
+
+    if (isMobile) {
+        // On mobile, window 'resize' fires every time the URL bar slides in/out
+        // during scroll — this resets canvas dimensions and teleports petals (rewind bug).
+        // Only listen to orientation change instead (true screen rotation).
+        window.addEventListener('orientationchange', resize);
+    } else {
+        window.addEventListener('resize', resize);
+    }
+
     for (let i = 0; i < PETAL_COUNT; i++) petals.push(spawn(true));
     animId = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
+
+    return () => {
+        cancelAnimationFrame(animId);
+        if (isMobile) {
+            window.removeEventListener('orientationchange', resize);
+        } else {
+            window.removeEventListener('resize', resize);
+        }
+    };
 }
 
 // ─── Video cycler (100% imperative — identical pattern to TECHED Portal) ──────
