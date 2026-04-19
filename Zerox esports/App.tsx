@@ -343,7 +343,7 @@ const App: React.FC = () => {
       <AppUpdateBlocker>
         <Router>
           <ScrollToTop />
-          <div className="min-h-screen bg-[#050505] text-textMain relative font-sans selection:bg-primary selection:text-white">
+          <div className="min-h-screen bg-[#050505] text-textMain relative font-sans selection:bg-primary selection:text-white overflow-x-hidden">
 
 
           {/* GLOBAL BROADCAST POPUP */}
