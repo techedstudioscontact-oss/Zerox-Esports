@@ -93,7 +93,7 @@ export const registerUser = async (
       whatsapp: whatsapp || phoneNumber,
       gameProfiles: gameProfiles || [],
       savedTournaments: [],
-      coins: 50, // Sign up bonus (changed from 100)
+      coins: 5, // Sign up bonus
       lastDailyReward: '',
       onboardingComplete: true,
       referralCode: myReferralCode,
@@ -134,7 +134,7 @@ export const registerUser = async (
     await setDoc(doc(db, 'users', newUser.uid), newUser);
 
     // Log signup bonus transaction
-    await createTransaction(newUser.uid, 50, 'credit', 'signup_bonus');
+    await createTransaction(newUser.uid, 5, 'credit', 'signup_bonus');
 
     return newUser;
   } catch (error: any) {
@@ -376,19 +376,7 @@ export const addCoins = async (user: User, amount: number): Promise<number> => {
 };
 
 export const checkDailyReward = async (user: User): Promise<{ rewarded: boolean; coins: number }> => {
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  if (user.lastDailyReward !== today) {
-    const rewardAmount = 50;
-    const newBalance = (user.coins || 0) + rewardAmount;
-    const updatedUser = {
-      ...user,
-      coins: newBalance,
-      lastDailyReward: today
-    };
-    // Update DB
-    await updateUserInDb(updatedUser);
-    return { rewarded: true, coins: rewardAmount };
-  }
+  // Disabled per admin request. Users only get the one-time signup bonus.
   return { rewarded: false, coins: 0 };
 };
 

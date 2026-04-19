@@ -186,12 +186,13 @@ export const Wallet: React.FC<WalletProps> = ({ user }) => {
                         </div>
 
                         <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
-                            <button
+                            {/* ADD MONEY HIDDEN PER REQUEST */}
+                            {/* <button
                                 onClick={() => { setAmount(''); setUtr(''); setShowAddMoney(true); }}
                                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-primary text-black font-black uppercase tracking-widest text-sm hover:bg-primary-hover transition-all shadow-[0_0_20px_rgba(205,255,0,0.3)] hover:shadow-[0_0_30px_rgba(205,255,0,0.5)]"
                             >
                                 <Plus size={18} /> Add
-                            </button>
+                            </button> */}
                             <button
                                 onClick={() => { setAmount(''); setWithdrawUpi(''); setShowWithdraw(true); }}
                                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-white/10 text-white font-black uppercase tracking-widest text-sm border border-white/20 hover:bg-white/20 transition-all"
