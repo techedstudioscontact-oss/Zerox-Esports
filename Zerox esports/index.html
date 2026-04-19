@@ -28,23 +28,25 @@
       overflow-x: hidden;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
+    /* Custom Scrollbar only for desktops with cursors */
+    @media (pointer: fine) {
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
 
-    ::-webkit-scrollbar-track {
-      background: #050505;
-    }
+      ::-webkit-scrollbar-track {
+        background: #050505;
+      }
 
-    ::-webkit-scrollbar-thumb {
-      background: #4c1d95;
-      border-radius: 3px;
-    }
+      ::-webkit-scrollbar-thumb {
+        background: #4c1d95;
+        border-radius: 3px;
+      }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #d946ef;
+      ::-webkit-scrollbar-thumb:hover {
+        background: #d946ef;
+      }
     }
 
     .text-glow {

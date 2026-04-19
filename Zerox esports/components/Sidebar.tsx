@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, user, onLogou
                     <div className="flex items-center gap-4 group">
                         <div className="relative">
                             <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
-                            <img src="/logo.png" alt="Zerox" className="w-12 h-12 rounded-2xl object-cover shadow-2xl relative z-10 border border-white/10 group-hover:scale-110 transition-transform duration-500" />
+                            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Zerox" className="w-12 h-12 rounded-2xl object-cover shadow-2xl relative z-10 border border-white/10 group-hover:scale-110 transition-transform duration-500" />
                         </div>
                         <div className="flex flex-col">
                             <span className="font-black text-2xl tracking-tighter text-white uppercase italic">Zerox</span>

@@ -99,11 +99,11 @@ export const Home: React.FC<HomeProps> = ({ user, content, searchQuery }) => {
           </div>
 
           {news.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-6 snap-x snap-mandatory -mx-4 px-4">
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-6 -mx-4 px-4">
               {news.map(item => (
                 <div
                   key={item.id}
-                  className="snap-start shrink-0 relative rounded-[32px] overflow-hidden border border-white/[0.08] bg-white/[0.04] backdrop-blur-2xl
+                  className="shrink-0 relative rounded-[32px] overflow-hidden border border-white/[0.08] bg-white/[0.04] backdrop-blur-md
                     w-[calc(90vw-32px)] md:w-[480px] aspect-[21/9] shadow-[0_20px_50px_rgba(0,0,0,0.4)] group cursor-pointer"
                 >
                   {/* Background Image */}
@@ -170,9 +170,9 @@ export const Home: React.FC<HomeProps> = ({ user, content, searchQuery }) => {
             </h2>
           </div>
 
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-6 snap-x snap-mandatory -mx-4 px-4">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-6 -mx-4 px-4">
             {liveScrims.map(scrim => (
-              <div key={scrim.id} className="snap-start shrink-0 w-[85vw] md:w-[45vw] lg:w-[30vw]">
+              <div key={scrim.id} className="shrink-0 w-[85vw] md:w-[45vw] lg:w-[30vw]">
                 <TournamentCard
                   content={scrim}
                   isUnlocked={true}
@@ -201,12 +201,12 @@ export const Home: React.FC<HomeProps> = ({ user, content, searchQuery }) => {
             </div>
           </div>
 
-          <div ref={gameScrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-6 snap-x snap-mandatory -mx-4 px-4">
+          <div ref={gameScrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide pb-6 -mx-4 px-4">
             {games.map(game => (
               <div
                 key={game.id}
                 onClick={() => navigate(`/game/${game.id}`)}
-                className="snap-start shrink-0 relative rounded-[32px] overflow-hidden cursor-pointer border border-white/[0.08] bg-white/[0.04] backdrop-blur-xl hover:border-white/20 hover:scale-[1.03] transition-all duration-500 w-[calc(65vw-20px)] md:w-[320px] aspect-video shadow-[0_20px_40px_rgba(0,0,0,0.5)] group"
+                className="shrink-0 relative rounded-[32px] overflow-hidden cursor-pointer border border-white/[0.08] bg-white/[0.04] backdrop-blur-md hover:border-white/20 hover:scale-[1.03] transition-all duration-500 w-[calc(65vw-20px)] md:w-[320px] aspect-video shadow-[0_20px_40px_rgba(0,0,0,0.5)] group"
               >
                 {/* Background image */}
                 <img

@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         onLogout={onLogout}
       />
 
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] bg-black/[0.6] backdrop-blur-2xl pt-[env(safe-area-inset-top)] transition-all duration-300">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] bg-black/30 backdrop-blur-xl pt-[env(safe-area-inset-top)] transition-all duration-300">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
           {/* Logo / Sidebar Trigger */}
           <button
@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               <img
-                src="/logo.png"
+                src={`${import.meta.env.BASE_URL}logo.png`}
                 alt="Zerox eSports"
                 className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl object-cover shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative z-10 group-hover:scale-110 transition-all duration-500 border border-white/10"
               />
