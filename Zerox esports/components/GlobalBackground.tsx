@@ -20,20 +20,14 @@ const WALLPAPERS = [
 
 // ─── Sakura ───────────────────────────────────────────────────────────────────
 function initSakura(canvas: HTMLCanvasElement) {
-    // Completely disable on tiny mobile screens — free GPU for video
-    if (window.innerWidth < 480) {
-        canvas.style.display = 'none';
-        return () => {};
-    }
-
     const isMobile = window.innerWidth < 768;
     const ctx = canvas.getContext('2d')!;
     let petals: any[] = [], W = 0, H = 0, animId = 0;
     // Throttle: mobile = 30fps, desktop = 60fps
     let lastTime = 0;
     const FPS_INTERVAL = isMobile ? 1000 / 30 : 1000 / 60;
-    // Fewer petals on mobile to reduce draw calls
-    const PETAL_COUNT = isMobile ? 30 : 70;
+    // Fewer petals on mobile to keep GPU free, but still show them
+    const PETAL_COUNT = isMobile ? 35 : 70;
 
     const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
 
@@ -155,6 +149,22 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ settings, us
     const showLiveBg = user?.showLiveBg !== false;
     const adminUrl   = settings?.bgVideoUrl ?? '';
 
+    // ── MOBILE URL-BAR ZOOM FIX ─────────────────────────────────────────────
+    // Capture the REAL screen height once on mount (before the URL bar hides).
+    // Store it in a CSS variable. Use that variable for the wrapper height
+    // so the browser URL bar appearing/disappearing never resizes our fixed bg.
+    useEffect(() => {
+        const setHeight = () => {
+            document.documentElement.style.setProperty(
+                '--app-height', `${window.screen.height}px`
+            );
+        };
+        setHeight();
+        // Only update on true orientation change, NOT on scroll
+        window.addEventListener('orientationchange', setHeight);
+        return () => window.removeEventListener('orientationchange', setHeight);
+    }, []);
+
     // Sakura — once on mount
     useEffect(() => {
         if (!canvasRef.current) return;
@@ -166,15 +176,14 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ settings, us
         const wrapper = wrapperRef.current;
         if (!wrapper) return;
 
-        // Tear down existing video
         if (stopVideoRef.current) { stopVideoRef.current(); stopVideoRef.current = null; }
 
-        if (!showLiveBg) return; // no video when user toggled off
+        if (!showLiveBg) return;
 
         stopVideoRef.current = initVideo(
             wrapper,
             WALLPAPERS,
-            adminUrl || undefined   // undefined = use local playlist cycling
+            adminUrl || undefined
         );
 
         return () => {
@@ -184,19 +193,22 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ settings, us
 
     return (
         <>
-            {/* Video wrapper — GPU composited layer prevents mobile zoom-on-scroll */}
+            {/* Video wrapper
+                KEY FIX: height uses --app-height (captured from window.screen.height on mount)
+                NOT 100vh — this means the browser URL bar showing/hiding NEVER
+                resizes this element, permanently fixing the zoom-on-scroll bug.
+            */}
             <div
                 ref={wrapperRef}
                 style={{
                     position: 'fixed',
                     top: 0, left: 0,
                     width: '100%',
-                    height: '100%',
+                    height: 'var(--app-height, 100vh)',
                     zIndex: 0,
                     overflow: 'hidden',
                     pointerEvents: 'none',
                     background: '#020617',
-                    // Force an isolated GPU compositing layer — THIS is the zoom-on-scroll fix
                     transform: 'translateZ(0)',
                     WebkitTransform: 'translateZ(0)',
                     backfaceVisibility: 'hidden',
@@ -204,25 +216,24 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ settings, us
                     willChange: 'transform',
                 }}
             >
-                {/* Bottom gradient */}
                 <div style={{
                     position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
                     background: 'linear-gradient(to top, rgba(2,6,23,0.97) 0%, rgba(2,6,23,0.55) 40%, transparent 70%)',
                 }} />
-                {/* Top gradient */}
                 <div style={{
                     position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
                     background: 'linear-gradient(to bottom, rgba(2,6,23,0.6) 0%, transparent 30%)',
                 }} />
             </div>
 
-            {/* Sakura canvas — same GPU layer trick */}
+            {/* Sakura canvas — uses same height pin */}
             <canvas
                 ref={canvasRef}
                 style={{
                     position: 'fixed',
                     top: 0, left: 0,
-                    width: '100%', height: '100%',
+                    width: '100%',
+                    height: 'var(--app-height, 100vh)',
                     zIndex: 2,
                     pointerEvents: 'none',
                     transform: 'translateZ(0)',
