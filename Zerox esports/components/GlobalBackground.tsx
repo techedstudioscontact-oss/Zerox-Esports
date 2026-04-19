@@ -7,13 +7,15 @@ interface GlobalBackgroundProps {
     user: User | null;
 }
 
+const BASE = import.meta.env.BASE_URL || '/';
+
 const WALLPAPERS = [
-    '/wallpapers/sakura-falls-arknights-endfield-moewalls-com.mp4',
-    '/wallpapers/gugu-gaga-sleepy-river-moewalls-com.mp4',
-    '/wallpapers/mint-sakura-street-view-neverness-to-everness-moewalls-com.mp4',
-    '/wallpapers/miyamoto-musashi-legendary-samurai-vagabond-moewalls-com.mp4',
-    '/wallpapers/mutsumi-under-the-cherry-blossoms-bang-dream-moewalls-com.mp4',
-    '/wallpapers/naruto-vs-sasuke-moewalls-com.mp4',
+    `${BASE}wallpapers/sakura-falls-arknights-endfield-moewalls-com.mp4`,
+    `${BASE}wallpapers/gugu-gaga-sleepy-river-moewalls-com.mp4`,
+    `${BASE}wallpapers/mint-sakura-street-view-neverness-to-everness-moewalls-com.mp4`,
+    `${BASE}wallpapers/miyamoto-musashi-legendary-samurai-vagabond-moewalls-com.mp4`,
+    `${BASE}wallpapers/mutsumi-under-the-cherry-blossoms-bang-dream-moewalls-com.mp4`,
+    `${BASE}wallpapers/naruto-vs-sasuke-moewalls-com.mp4`,
 ];
 
 // ─── Sakura (identical to TECHED Portal initSakura) ──────────────────────────

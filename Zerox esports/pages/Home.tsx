@@ -13,10 +13,12 @@ interface HomeProps {
   searchQuery: string;
 }
 
+const BASE = import.meta.env.BASE_URL || '/';
+
 const games = [
-  { id: 'bgmi', name: 'BGMI', image: '/bgmi.jpg', color: 'from-orange-800 to-yellow-700' },
-  { id: 'freefire', name: 'Free Fire MAX', image: '/ffmax.jpg', color: 'from-red-800 to-orange-700' },
-  { id: 'minecraft', name: 'Minecraft', image: '/minecraft.jfif', color: 'from-green-800 to-emerald-700', isNew: true },
+  { id: 'bgmi', name: 'BGMI', image: `${BASE}bgmi.jpg`, color: 'from-orange-800 to-yellow-700' },
+  { id: 'freefire', name: 'Free Fire MAX', image: `${BASE}ffmax.jpg`, color: 'from-red-800 to-orange-700' },
+  { id: 'minecraft', name: 'Minecraft', image: `${BASE}minecraft.jfif`, color: 'from-green-800 to-emerald-700', isNew: true },
 ];
 
 export const Home: React.FC<HomeProps> = ({ user, content, searchQuery }) => {
