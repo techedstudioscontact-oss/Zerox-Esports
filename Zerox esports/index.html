@@ -27,6 +27,18 @@
       color: #ffffff;
     }
 
+    /* iOS/Android: prevent background zoom-on-scroll bug */
+    html {
+      height: 100%;
+      /* Disable momentum scrolling glitch on iOS Safari */
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #root {
+      /* Isolate the stacking context so fixed elements stay truly fixed */
+      isolation: isolate;
+    }
+
     /* Custom Scrollbar only for desktops with cursors */
     @media (pointer: fine) {
       ::-webkit-scrollbar {

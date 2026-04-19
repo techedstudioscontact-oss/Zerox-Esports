@@ -18,10 +18,22 @@ const WALLPAPERS = [
     `${BASE}wallpapers/naruto-vs-sasuke-moewalls-com.mp4`,
 ];
 
-// ─── Sakura (identical to TECHED Portal initSakura) ──────────────────────────
+// ─── Sakura ───────────────────────────────────────────────────────────────────
 function initSakura(canvas: HTMLCanvasElement) {
+    // Completely disable on tiny mobile screens — free GPU for video
+    if (window.innerWidth < 480) {
+        canvas.style.display = 'none';
+        return () => {};
+    }
+
+    const isMobile = window.innerWidth < 768;
     const ctx = canvas.getContext('2d')!;
     let petals: any[] = [], W = 0, H = 0, animId = 0;
+    // Throttle: mobile = 30fps, desktop = 60fps
+    let lastTime = 0;
+    const FPS_INTERVAL = isMobile ? 1000 / 30 : 1000 / 60;
+    // Fewer petals on mobile to reduce draw calls
+    const PETAL_COUNT = isMobile ? 30 : 70;
 
     const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
 
@@ -35,7 +47,12 @@ function initSakura(canvas: HTMLCanvasElement) {
         alpha: 0.2 + Math.random() * 0.5,
     });
 
-    const tick = () => {
+    const tick = (timestamp: number) => {
+        animId = requestAnimationFrame(tick);
+        const elapsed = timestamp - lastTime;
+        if (elapsed < FPS_INTERVAL) return; // throttle
+        lastTime = timestamp - (elapsed % FPS_INTERVAL);
+
         ctx.clearRect(0, 0, W, H);
         for (const p of petals) {
             p.y += p.vy; p.wave += 0.016;
@@ -51,13 +68,12 @@ function initSakura(canvas: HTMLCanvasElement) {
             ctx.ellipse(0, 0, Math.max(0.1, p.rx * Math.abs(Math.cos(p.flip))), p.ry, 0, 0, Math.PI * 2);
             ctx.fill(); ctx.restore();
         }
-        animId = requestAnimationFrame(tick);
     };
 
     resize();
     window.addEventListener('resize', resize);
-    for (let i = 0; i < 70; i++) petals.push(spawn(true));
-    tick();
+    for (let i = 0; i < PETAL_COUNT; i++) petals.push(spawn(true));
+    animId = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
 }
 
@@ -168,31 +184,52 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ settings, us
 
     return (
         <>
-            {/* Video wrapper — React renders shell, JS owns the <video> inside */}
+            {/* Video wrapper — GPU composited layer prevents mobile zoom-on-scroll */}
             <div
                 ref={wrapperRef}
                 style={{
-                    position: 'fixed', inset: 0, zIndex: 0,
-                    overflow: 'hidden', pointerEvents: 'none',
+                    position: 'fixed',
+                    top: 0, left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 0,
+                    overflow: 'hidden',
+                    pointerEvents: 'none',
                     background: '#020617',
+                    // Force an isolated GPU compositing layer — THIS is the zoom-on-scroll fix
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    willChange: 'transform',
                 }}
             >
-                {/* Portal .video-gradient-bottom */}
+                {/* Bottom gradient */}
                 <div style={{
                     position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
                     background: 'linear-gradient(to top, rgba(2,6,23,0.97) 0%, rgba(2,6,23,0.55) 40%, transparent 70%)',
                 }} />
-                {/* Portal .video-gradient-top */}
+                {/* Top gradient */}
                 <div style={{
                     position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
                     background: 'linear-gradient(to bottom, rgba(2,6,23,0.6) 0%, transparent 30%)',
                 }} />
             </div>
 
-            {/* Sakura canvas — above video */}
+            {/* Sakura canvas — same GPU layer trick */}
             <canvas
                 ref={canvasRef}
-                style={{ position: 'fixed', inset: 0, zIndex: 2, pointerEvents: 'none', width: '100%', height: '100%' }}
+                style={{
+                    position: 'fixed',
+                    top: 0, left: 0,
+                    width: '100%', height: '100%',
+                    zIndex: 2,
+                    pointerEvents: 'none',
+                    transform: 'translateZ(0)',
+                    WebkitTransform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                }}
             />
         </>
     );
